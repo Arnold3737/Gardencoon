@@ -3,688 +3,895 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>✏️ Редактор текста — Garden State Coon</title>
+<title>✏️ Редактор — Garden State Coon</title>
 <style>
-  :root {
-    --green: #1a6b3a;
-    --green-light: #e8f5ee;
-    --green-dark: #0e4425;
-    --red: #c0392b;
-    --red-light: #fdecea;
-    --orange: #e67e22;
-    --gray: #555;
-    --gray-light: #f4f4f4;
-    --border: #ddd;
-    --radius: 8px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.10);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; }
+/* ── RESET & TOKENS ─────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --g900: #0b3d20;
+  --g700: #166534;
+  --g500: #22c55e;
+  --g100: #dcfce7;
+  --g50:  #f0fdf4;
+  --neu50:  #f8fafc;
+  --neu100: #f1f5f9;
+  --neu200: #e2e8f0;
+  --neu400: #94a3b8;
+  --neu600: #475569;
+  --neu800: #1e293b;
+  --red400: #f87171;
+  --red50:  #fef2f2;
+  --amber:  #f59e0b;
+  --r: 10px;
+  --sh: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --sh-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+}
 
-  /* ── HEADER ───────────────────────────── */
-  .header { background: var(--green-dark); color: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
-  .header h1 { font-size: 1.15rem; font-weight: 600; }
-  .header .badge { background: #fff2; font-size: .75rem; padding: 3px 10px; border-radius: 99px; }
+/* ── TYPOGRAPHY ─────────────────────────── */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: var(--neu100); color: var(--neu800); height: 100vh; overflow: hidden; font-size: 14px; }
 
-  /* ── LAYOUT ───────────────────────────── */
-  .layout { display: flex; height: calc(100vh - 52px); }
+/* ── TOP BAR ────────────────────────────── */
+.topbar {
+  height: 52px; background: var(--g900); color: #fff;
+  display: flex; align-items: center; gap: 10px; padding: 0 20px;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.topbar-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+.topbar-logo svg { opacity:.85; }
+.topbar-sep { width:1px; height:24px; background:#fff2; margin: 0 6px; }
+.topbar-page { font-size:13px; color:#94d3ac; font-weight:500; min-width:0; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; flex:1; }
+.topbar-right { display:flex; gap:8px; align-items:center; margin-left:auto; }
+#connBadge { font-size:11px; padding:3px 10px; border-radius:99px;
+  background:#fff2; color:#a7f3c4; font-weight:600; }
 
-  /* ── SIDEBAR ──────────────────────────── */
-  .sidebar { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
-  .sidebar-title { padding: 14px 16px 8px; font-size: .78rem; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .06em; }
-  .page-btn { display: block; width: 100%; text-align: left; padding: 9px 16px; border: none; background: none; cursor: pointer; font-size: .9rem; color: #333; border-left: 3px solid transparent; transition: all .15s; }
-  .page-btn:hover { background: var(--green-light); color: var(--green-dark); }
-  .page-btn.active { background: var(--green-light); color: var(--green-dark); font-weight: 600; border-left-color: var(--green); }
-  .page-btn small { display: block; font-size: .73rem; color: #888; margin-top: 1px; }
+/* ── LAYOUT ─────────────────────────────── */
+.shell { display:flex; height:calc(100vh - 52px); margin-top:52px; }
 
-  /* ── MAIN PANEL ───────────────────────── */
-  .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+/* ── LEFT NAV ───────────────────────────── */
+.nav {
+  width: 230px; flex-shrink:0; background:#fff; border-right:1px solid var(--neu200);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.nav-head { padding: 14px 16px 10px; display:flex; align-items:center; justify-content:space-between; }
+.nav-head span { font-size:11px; font-weight:700; color:var(--neu400); text-transform:uppercase; letter-spacing:.08em; }
+.nav-search { padding:0 12px 10px; }
+.nav-search input {
+  width:100%; padding:6px 10px; border:1px solid var(--neu200); border-radius:6px;
+  font-size:12px; background:var(--neu50); outline:none;
+}
+.nav-search input:focus { border-color:var(--g500); box-shadow:0 0 0 2px var(--g100); }
+.nav-list { flex:1; overflow-y:auto; padding-bottom:8px; }
+.nav-item {
+  display:flex; align-items:center; gap:0; padding:8px 16px;
+  cursor:pointer; border-left:3px solid transparent;
+  transition: background .12s, border-color .12s;
+  text-decoration:none;
+}
+.nav-item:hover { background:var(--g50); }
+.nav-item.active { background:var(--g50); border-left-color:var(--g700); }
+.nav-item-label { font-size:13px; color:var(--neu800); font-weight:500; flex:1; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nav-item.active .nav-item-label { color:var(--g700); }
+.nav-item-file { font-size:10px; color:var(--neu400); margin-top:1px; display:block; }
+.nav-changed-dot { width:6px; height:6px; border-radius:50%; background:var(--amber); flex-shrink:0; }
 
-  /* ── TOKEN INPUT (STEP 0) ─────────────── */
-  .token-screen { display: flex; align-items: center; justify-content: center; flex: 1; padding: 24px; }
-  .token-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 36px; max-width: 500px; width: 100%; }
-  .token-card h2 { font-size: 1.2rem; margin-bottom: 8px; color: var(--green-dark); }
-  .token-card p { font-size: .9rem; color: var(--gray); margin-bottom: 18px; line-height: 1.5; }
-  .token-card a { color: var(--green); }
-  .token-input-row { display: flex; gap: 8px; }
-  .token-input-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: .95rem; font-family: monospace; }
-  .btn { padding: 9px 20px; border-radius: var(--radius); border: none; cursor: pointer; font-size: .9rem; font-weight: 600; transition: background .15s; }
-  .btn-green { background: var(--green); color: #fff; }
-  .btn-green:hover { background: var(--green-dark); }
-  .btn-green:disabled { background: #aaa; cursor: default; }
-  .btn-gray { background: #e0e0e0; color: #333; }
-  .btn-gray:hover { background: #ccc; }
-  .btn-red { background: var(--red); color: #fff; }
-  .btn-red:hover { background: #a93226; }
-  .token-note { font-size: .8rem; color: #888; margin-top: 10px; }
+/* ── MAIN AREA ──────────────────────────── */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
 
-  /* ── PAGE HEADER ──────────────────────── */
-  .page-header { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .page-header h2 { font-size: 1.05rem; font-weight: 600; flex: 1; min-width: 200px; }
-  .page-header .filename { font-size: .8rem; color: #888; font-family: monospace; }
-  .search-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .search-row input { padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: .9rem; min-width: 220px; }
+/* ── TOOLBAR ────────────────────────────── */
+.toolbar {
+  background:#fff; border-bottom:1px solid var(--neu200);
+  padding:10px 20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.toolbar-search {
+  flex:1; min-width:180px; max-width:340px;
+  display:flex; align-items:center; gap:8px; background:var(--neu50);
+  border:1px solid var(--neu200); border-radius:8px; padding:6px 12px;
+}
+.toolbar-search input { border:none; background:none; outline:none; font-size:13px;
+  color:var(--neu800); width:100%; }
+.toolbar-search svg { color:var(--neu400); flex-shrink:0; }
+.toolbar-right { display:flex; gap:8px; align-items:center; margin-left:auto; }
+.count-badge { font-size:12px; color:var(--neu400); }
+.btn { border:none; cursor:pointer; font-size:13px; font-weight:600;
+  padding:7px 14px; border-radius:7px; transition:all .15s; display:inline-flex;
+  align-items:center; gap:5px; }
+.btn-ghost { background:none; color:var(--neu600); }
+.btn-ghost:hover { background:var(--neu100); }
+.btn-primary { background:var(--g700); color:#fff; }
+.btn-primary:hover { background:var(--g900); }
+.btn-primary:disabled { background:var(--neu200); color:var(--neu400); cursor:default; }
+.btn-danger { background:var(--red50); color:#dc2626; }
+.btn-danger:hover { background:#fecaca; }
 
-  /* ── EDITOR AREA ──────────────────────── */
-  .editor-area { flex: 1; overflow-y: auto; padding: 20px; }
-  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: 10px; color: #aaa; font-size: 1.1rem; }
-  .placeholder svg { width: 60px; height: 60px; opacity: .3; }
+/* ── BLOCKS LIST ────────────────────────── */
+.blocks-wrap { flex:1; overflow-y:auto; padding:16px 20px; display:flex; flex-direction:column; gap:6px; }
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center;
+  flex:1; color:var(--neu400); gap:10px; text-align:center; padding:40px; }
+.empty-state svg { opacity:.3; }
+.empty-state p { font-size:15px; }
 
-  /* ── TEXT NODES LIST ──────────────────── */
-  .nodes-list { display: flex; flex-direction: column; gap: 10px; }
-  .node-card { background: #fff; border-radius: var(--radius); box-shadow: 0 1px 4px rgba(0,0,0,.07); overflow: hidden; border: 1px solid var(--border); transition: box-shadow .15s; }
-  .node-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.13); }
-  .node-card.highlight { border-color: var(--green); box-shadow: 0 0 0 2px rgba(26,107,58,.18); }
-  .node-header { padding: 8px 14px; background: var(--gray-light); font-size: .75rem; color: var(--gray); display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
-  .node-tag { background: #dde; color: #446; padding: 1px 7px; border-radius: 4px; font-family: monospace; font-size: .78rem; }
-  .node-body { padding: 12px 14px; }
-  .node-text-display { font-size: .95rem; line-height: 1.55; color: #222; word-break: break-word; }
-  .node-text-display mark { background: #fff176; border-radius: 2px; padding: 0 1px; }
-  .node-actions { padding: 8px 14px 12px; display: flex; gap: 8px; }
-  .btn-edit { padding: 5px 14px; font-size: .83rem; background: var(--green-light); color: var(--green-dark); border: 1px solid #b2ddc4; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
-  .btn-edit:hover { background: #c4edd8; }
+/* ── BLOCK CARD ─────────────────────────── */
+.block {
+  background:#fff; border:1.5px solid var(--neu200); border-radius:var(--r);
+  transition: border-color .15s, box-shadow .15s;
+  overflow:hidden;
+}
+.block:hover { border-color:var(--neu400); box-shadow:var(--sh); }
+.block.editing { border-color:var(--g500); box-shadow:0 0 0 3px var(--g100); }
+.block.modified { border-color:var(--amber); }
+.block.modified.editing { border-color:var(--g500); }
 
-  /* ── EDIT MODAL ───────────────────────── */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
-  .modal { background: #fff; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,.22); width: 100%; max-width: 640px; overflow: hidden; }
-  .modal-header { background: var(--green-dark); color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .modal-header h3 { font-size: 1rem; }
-  .modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0 4px; }
-  .modal-body { padding: 20px; }
-  .modal-section { margin-bottom: 16px; }
-  .modal-label { font-size: .8rem; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-  .modal-old { background: var(--red-light); border: 1px solid #f5c6c2; border-radius: var(--radius); padding: 10px 14px; font-size: .9rem; line-height: 1.5; color: #7a1a1a; word-break: break-word; max-height: 100px; overflow-y: auto; }
-  .modal-new textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: .92rem; font-family: inherit; resize: vertical; min-height: 70px; line-height: 1.5; }
-  .modal-new textarea:focus { outline: 2px solid var(--green); border-color: var(--green); }
-  .diff-preview { background: var(--green-light); border: 1px solid #b2ddc4; border-radius: var(--radius); padding: 10px 14px; font-size: .85rem; line-height: 1.5; display: none; }
-  .diff-preview.visible { display: block; }
-  .diff-del { color: var(--red); text-decoration: line-through; margin-right: 4px; }
-  .diff-add { color: var(--green-dark); font-weight: 600; }
-  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; background: var(--gray-light); }
-  .status-bar { padding: 8px 20px; font-size: .83rem; border-top: 1px solid var(--border); background: #fff; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .status-ok { color: var(--green-dark); font-weight: 600; }
-  .status-err { color: var(--red); font-weight: 600; }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.block-meta {
+  display:flex; align-items:center; gap:6px; padding:7px 12px 6px;
+  border-bottom:1px solid var(--neu100); background:var(--neu50);
+  cursor:pointer; user-select:none;
+}
+.block-meta:hover .block-tag { background:var(--g100); color:var(--g700); }
+.block-type-label {
+  font-size:11px; font-weight:600; color:var(--neu400); text-transform:uppercase;
+  letter-spacing:.07em;
+}
+.block-tag {
+  font-size:10px; padding:1px 6px; border-radius:4px; font-family:monospace;
+  background:var(--neu100); color:var(--neu600); transition: background .12s;
+}
+.mod-badge {
+  margin-left:auto; font-size:10px; font-weight:700; color:var(--amber);
+  background:#fef9c3; padding:1px 7px; border-radius:99px; letter-spacing:.03em;
+}
 
-  .empty-state { text-align: center; padding: 40px 20px; color: #aaa; }
+/* ── BLOCK BODY ─────────────────────────── */
+.block-view {
+  padding:10px 14px; font-size:14px; line-height:1.6; color:var(--neu800);
+  cursor:text; word-break:break-word; position:relative;
+}
+.block-view:hover::after {
+  content:'✏️  нажмите чтобы изменить';
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  font-size:11px; color:var(--neu400); pointer-events:none; white-space:nowrap;
+}
+.block-view mark { background:#fef08a; border-radius:2px; padding:0 1px; }
 
-  /* ── CHANGED BADGE ─────────────────────── */
-  .changed-badge { background: var(--orange); color: #fff; font-size: .7rem; padding: 1px 8px; border-radius: 99px; margin-left: 6px; }
+.block-editor { display:none; flex-direction:column; gap:0; }
+.block-editor.open { display:flex; }
+.block-textarea {
+  width:100%; border:none; outline:none; resize:none; font-family:inherit;
+  font-size:14px; line-height:1.6; padding:10px 14px; background:#fff;
+  color:var(--neu800); min-height:60px; field-sizing:content;
+}
+.block-actions {
+  display:flex; align-items:center; gap:8px; padding:6px 10px 8px;
+  background:var(--g50); border-top:1px solid var(--g100);
+}
+.btn-save { background:var(--g700); color:#fff; font-size:12px; padding:5px 14px; border-radius:6px;
+  border:none; cursor:pointer; font-weight:600; }
+.btn-save:hover { background:var(--g900); }
+.btn-cancel { background:none; border:none; font-size:12px; color:var(--neu400);
+  cursor:pointer; padding:5px 8px; border-radius:6px; }
+.btn-cancel:hover { background:var(--neu100); color:var(--neu600); }
+.char-count { font-size:11px; color:var(--neu400); margin-left:auto; }
 
-  /* ── PUBLISH BAR ───────────────────────── */
-  .publish-bar { background: #fffbe6; border-top: 2px solid var(--orange); padding: 10px 20px; display: flex; align-items: center; gap: 12px; }
-  .publish-bar p { flex: 1; font-size: .88rem; color: #7a5500; }
+/* ── PUBLISH BAR ────────────────────────── */
+.publish-bar {
+  background:#fffbeb; border-top:2px solid var(--amber);
+  padding:10px 20px; display:none; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.publish-bar.visible { display:flex; }
+.publish-msg { flex:1; font-size:13px; color:#92400e; font-weight:500; }
+.publish-msg strong { font-weight:700; }
 
-  /* hide when no token */
-  .needs-token { display: none; }
+/* ── STATUS BAR ─────────────────────────── */
+.status-bar {
+  padding:6px 20px; font-size:12px; border-top:1px solid var(--neu100);
+  background:#fff; color:var(--neu400); min-height:30px; display:flex; align-items:center; gap:8px;
+}
+.s-ok { color:var(--g700); font-weight:600; }
+.s-err { color:#dc2626; font-weight:600; }
+.spin { display:inline-block; width:12px; height:12px; border:2px solid var(--neu200);
+  border-top-color:var(--g500); border-radius:50%; animation:spin .6s linear infinite; flex-shrink:0; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── TOKEN SCREEN ───────────────────────── */
+.token-screen {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding:24px; background:var(--neu100);
+}
+.token-card {
+  background:#fff; border-radius:14px; box-shadow:var(--sh-md);
+  padding:36px 40px; max-width:480px; width:100%;
+}
+.token-card h2 { font-size:20px; color:var(--g900); margin-bottom:8px; }
+.token-card p { font-size:13px; color:var(--neu600); line-height:1.6; margin-bottom:12px; }
+.token-card a { color:var(--g700); }
+.token-row { display:flex; gap:8px; }
+.token-row input {
+  flex:1; padding:9px 12px; border:1.5px solid var(--neu200); border-radius:8px;
+  font-size:13px; font-family:monospace; outline:none;
+}
+.token-row input:focus { border-color:var(--g500); box-shadow:0 0 0 3px var(--g100); }
+.token-note { font-size:11px; color:var(--neu400); margin-top:10px; }
+.token-err { color:#dc2626; font-size:12px; margin-top:8px; font-weight:600; }
+
+/* ── SCROLLBAR ──────────────────────────── */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--neu200); border-radius:99px; }
+::-webkit-scrollbar-thumb:hover { background:var(--neu400); }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-  <h1>Редактор текста — Garden State Coon</h1>
-  <span class="badge" id="statusBadge">Введите токен</span>
-</div>
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#86efac" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+    Редактор сайта
+  </div>
+  <div class="topbar-sep"></div>
+  <div class="topbar-page" id="topPage">Garden State Coon</div>
+  <div class="topbar-right">
+    <span id="connBadge">не подключено</span>
+  </div>
+</header>
 
-<div class="layout">
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-title">Страницы</div>
-    <div id="pageList"></div>
-  </aside>
+<div class="shell">
+
+  <!-- LEFT NAV -->
+  <nav class="nav">
+    <div class="nav-head">
+      <span>Страницы</span>
+    </div>
+    <div class="nav-search">
+      <input id="navSearch" placeholder="Найти страницу..." oninput="filterNav(this.value)">
+    </div>
+    <div class="nav-list" id="navList"></div>
+  </nav>
 
   <!-- MAIN -->
-  <div class="main" id="mainPanel">
+  <div class="main" id="mainArea">
 
     <!-- TOKEN SCREEN -->
     <div class="token-screen" id="tokenScreen">
       <div class="token-card">
-        <h2>🔑 Введите GitHub токен</h2>
-        <p>Этот редактор работает прямо в браузере и публикует изменения через GitHub API. Нужен персональный токен с правом <strong>Contents: Read &amp; Write</strong>.</p>
-        <p style="margin-bottom:14px">Создайте токен на <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> (Fine-grained, репозиторий Gardencoon, Contents = Read &amp; Write).</p>
-        <div class="token-input-row">
-          <input type="password" id="tokenInput" placeholder="github_pat_..." autocomplete="off">
-          <button class="btn btn-green" onclick="saveToken()">Войти</button>
+        <h2>🔑 Подключение к GitHub</h2>
+        <p>Редактор работает прямо в браузере и сохраняет изменения через GitHub API. Нужен токен с правом <strong>Contents: Read &amp; Write</strong>.</p>
+        <p>Создайте на <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> → Fine-grained → репозиторий <strong>Gardencoon</strong> → Contents = Read &amp; Write.</p>
+        <div class="token-row">
+          <input type="password" id="tokenInput" placeholder="github_pat_..." autocomplete="off"
+            onkeydown="if(event.key==='Enter') saveToken()">
+          <button class="btn btn-primary" onclick="saveToken()">Войти</button>
         </div>
-        <p class="token-note">Токен хранится только в этом браузере (localStorage). Никуда не отправляется кроме GitHub API.</p>
-        <p class="token-note" id="tokenError" style="color:var(--red);margin-top:8px"></p>
+        <p class="token-note">Токен хранится в localStorage вашего браузера. Никуда не отправляется, кроме GitHub API.</p>
+        <p class="token-err" id="tokenErr"></p>
       </div>
     </div>
 
-    <!-- PAGE CONTENT AREA -->
-    <div id="pageArea" style="display:none;flex-direction:column;height:100%">
-      <div class="page-header">
-        <div style="flex:1">
-          <h2 id="pageTitle">Выберите страницу</h2>
-          <span class="filename" id="pageFilename"></span>
+    <!-- EDITOR SCREEN (hidden until login) -->
+    <div id="editorScreen" style="display:none; flex-direction:column; height:100%;">
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="toolbar-search">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+          </svg>
+          <input id="blockSearch" placeholder="Поиск по тексту..." oninput="filterBlocks(this.value)">
         </div>
-        <div class="search-row">
-          <input type="search" id="searchInput" placeholder="🔍 Поиск текста..." oninput="filterNodes()">
-          <button class="btn btn-gray" onclick="reloadPage()">↺ Обновить</button>
+        <span class="count-badge" id="countBadge"></span>
+        <div class="toolbar-right">
+          <button class="btn btn-ghost" onclick="reloadCurrentPage()" title="Перезагрузить страницу с GitHub">
+            ↺ Обновить
+          </button>
+          <button class="btn btn-ghost btn-danger" id="discardBtn" onclick="discardAll()" style="display:none">
+            ✕ Отменить
+          </button>
         </div>
       </div>
 
-      <div class="editor-area" id="editorArea">
-        <div class="placeholder" id="editorPlaceholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          Выберите страницу слева
+      <!-- BLOCKS -->
+      <div class="blocks-wrap" id="blocksWrap">
+        <div class="empty-state" id="emptyState">
+          <svg width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p>Выберите страницу слева</p>
         </div>
-        <div class="nodes-list" id="nodesList" style="display:none"></div>
       </div>
 
-      <div class="status-bar" id="statusBar"></div>
+      <!-- PUBLISH BAR -->
+      <div class="publish-bar" id="publishBar">
+        <div class="publish-msg">⚠️ <strong id="changeCount">0</strong> изменений не сохранены. Нажмите «Опубликовать», чтобы они появились на сайте (~1 мин).</div>
+        <button class="btn btn-primary" id="publishBtn" onclick="publish()">
+          🚀 Опубликовать
+        </button>
+      </div>
 
-      <div class="publish-bar" id="publishBar" style="display:none">
-        <p>⚠️ Есть несохранённые изменения. Нажмите «Опубликовать», чтобы они появились на сайте.</p>
-        <button class="btn btn-green" id="publishBtn" onclick="publishChanges()">🚀 Опубликовать</button>
-        <button class="btn btn-gray" onclick="discardChanges()">✕ Отменить всё</button>
-      </div>
-    </div>
+      <!-- STATUS BAR -->
+      <div class="status-bar" id="statusBar">Выберите страницу слева</div>
 
-  </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal" style="display:none" onclick="closeModalOutside(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>✏️ Редактировать текст</h3>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-section">
-        <div class="modal-label">Старый текст (что было)</div>
-        <div class="modal-old" id="modalOldText"></div>
-      </div>
-      <div class="modal-section modal-new">
-        <div class="modal-label">Новый текст (что будет)</div>
-        <textarea id="modalNewText" rows="3" oninput="updatePreview()"></textarea>
-      </div>
-      <div class="modal-section">
-        <div class="modal-label">Предпросмотр изменения</div>
-        <div class="diff-preview" id="diffPreview"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-gray" onclick="closeModal()">Отмена</button>
-      <button class="btn btn-green" onclick="applyEdit()">✓ Применить</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    CONFIG
-═══════════════════════════════════════════════════════════ */
-const OWNER = 'Arnold3737';
-const REPO  = 'Gardencoon';
+══════════════════════════════════════════ */
+const OWNER  = 'Arnold3737';
+const REPO   = 'Gardencoon';
 const BRANCH = 'main';
-const API = 'https://api.github.com';
+const API    = 'https://api.github.com';
 
 const PAGE_LABELS = {
-  'index.html':            'Главная',
-  'about.html':            'О нас / О питомнике',
-  'our-cats.html':         'Наши кошки',
-  'kittens.html':          'Доступные котята',
-  'gallery.html':          'Галерея',
-  'contact.html':          'Контакты',
-  'faq.html':              'Вопросы и ответы (FAQ)',
-  'health-testing.html':   'Тестирование здоровья',
-  'shipping.html':         'Доставка',
-  'waiting-list.html':     'Лист ожидания',
-  'purchase-contract.html':'Договор покупки',
-  'terms-of-sale.html':    'Условия продажи',
-  'privacy-policy.html':   'Политика конфиденциальности',
-  'cookie-policy.html':    'Политика cookie',
-  '404.html':              'Страница 404',
+  'index.html':             'Главная',
+  'about.html':             'О нас / О питомнике',
+  'our-cats.html':          'Наши кошки',
+  'kittens.html':           'Доступные котята',
+  'gallery.html':           'Галерея',
+  'contact.html':           'Контакты',
+  'faq.html':               'Вопросы и ответы (FAQ)',
+  'health-testing.html':    'Тестирование здоровья',
+  'shipping.html':          'Доставка',
+  'waiting-list.html':      'Лист ожидания',
+  'purchase-contract.html': 'Договор покупки',
+  'terms-of-sale.html':     'Условия продажи',
+  'privacy-policy.html':    'Политика конфиденциальности',
+  'cookie-policy.html':     'Политика cookie',
+  '404.html':               'Страница 404',
 };
 
-/* ═══════════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════════ */
-let token = '';
-let currentFile = null;
-let currentHtml = '';   // original from GitHub
-let workingHtml = '';   // with local edits
-let currentSha  = '';   // blob SHA for update
-let editNodes   = [];   // parsed text nodes
-let pendingNodeIndex = null; // which node is being edited
-let changedCount = 0;
+const TAG_LABELS = {
+  H1:'Заголовок H1', H2:'Заголовок H2', H3:'Заголовок H3',
+  H4:'Подзаголовок', H5:'Подзаголовок', H6:'Подзаголовок',
+  P:'Абзац', LI:'Пункт списка', BUTTON:'Кнопка',
+  LABEL:'Подпись', FIGCAPTION:'Подпись к фото',
+  TD:'Ячейка таблицы', TH:'Заголовок таблицы',
+  BLOCKQUOTE:'Цитата', DT:'Термин', DD:'Описание',
+  TITLE:'Заголовок страницы',
+};
 
-/* ═══════════════════════════════════════════════════════════
-   TOKEN
-═══════════════════════════════════════════════════════════ */
+/* Navigation elements to skip */
+const SKIP_SELECTORS = [
+  'header', 'nav', 'footer', '.site-header', '.site-footer',
+  '.nav', '.menu', 'script', 'style', 'noscript', 'template',
+  '[data-editor-skip]', '.cookie-banner',
+];
+const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','TEMPLATE','HEAD','META','LINK','IFRAME']);
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let token       = '';
+let pages       = [];      // all pages list
+let currentFile = null;
+let currentSha  = '';
+let origHtml    = '';      // from GitHub
+let workHtml    = '';      // with edits
+let blocks      = [];      // parsed blocks
+let changedIds  = new Set();
+let editingId   = null;
+
+/* ══════════════════════════════════════════
+   TOKEN / AUTH
+══════════════════════════════════════════ */
 function saveToken() {
   const t = document.getElementById('tokenInput').value.trim();
   if (!t) return;
   token = t;
-  localStorage.setItem('gsc_editor_token', t);
-  init();
+  localStorage.setItem('gsc_tok', t);
+  boot();
 }
 
-function loadToken() {
-  token = localStorage.getItem('gsc_editor_token') || '';
-  if (token) init();
-}
-
-/* ═══════════════════════════════════════════════════════════
-   INIT — build page list from GitHub tree
-═══════════════════════════════════════════════════════════ */
-async function init() {
-  setStatus('🔄 Загрузка списка файлов...', '');
+async function boot() {
+  status('Загрузка...', 'spin');
   try {
-    const res = await ghFetch(`${API}/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
-    if (!res.ok) {
-      const j = await res.json();
-      throw new Error(j.message || 'Ошибка GitHub API');
-    }
-    const data = await res.json();
-    const htmlFiles = data.tree
-      .filter(f => f.type === 'blob' && f.path.match(/^[^/]+\.html$/) && f.path !== 'kitten-detail.html' && f.path !== 'editor.html')
+    const r = await gh(`${API}/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
+    if (!r.ok) { const j = await r.json(); throw new Error(j.message); }
+    const d = await r.json();
+
+    const htmlFiles = d.tree
+      .filter(f => f.type==='blob' && /^[^/]+\.html$/.test(f.path)
+        && f.path !== 'kitten-detail.html' && f.path !== 'editor.html')
       .map(f => f.path);
 
-    // Ordered list
-    const order = Object.keys(PAGE_LABELS);
-    const main = order.filter(f => htmlFiles.includes(f));
+    const ordered = Object.keys(PAGE_LABELS).filter(f => htmlFiles.includes(f));
     const kittens = htmlFiles
       .filter(f => /^kitten-detail-\d+\.html$/.test(f))
-      .sort((a,b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
-    const known = new Set([...main, ...kittens]);
-    const rest = htmlFiles.filter(f => !known.has(f)).sort();
-    const pages = [...main, ...kittens, ...rest];
+      .sort((a,b) => +a.match(/\d+/)[0] - +b.match(/\d+/)[0]);
+    const known = new Set([...ordered, ...kittens]);
+    const rest  = htmlFiles.filter(f => !known.has(f)).sort();
+    pages = [...ordered, ...kittens, ...rest];
 
-    buildSidebar(pages);
+    buildNav(pages);
     document.getElementById('tokenScreen').style.display = 'none';
-    document.getElementById('pageArea').style.display = 'flex';
-    document.getElementById('statusBadge').textContent = '✓ Подключено';
-    setStatus('✓ Готово. Выберите страницу слева.', 'ok');
+    document.getElementById('editorScreen').style.display = 'flex';
+    document.getElementById('connBadge').textContent = '✓ Подключено';
+    document.getElementById('connBadge').style.color = '#86efac';
+    status('Готово. Выберите страницу слева.', 'ok');
   } catch(e) {
-    document.getElementById('tokenError').textContent = '❌ ' + e.message;
-    document.getElementById('statusBadge').textContent = 'Ошибка';
-    token = '';
-    localStorage.removeItem('gsc_editor_token');
+    document.getElementById('tokenErr').textContent = '❌ ' + e.message;
+    token = ''; localStorage.removeItem('gsc_tok');
   }
 }
 
-function buildSidebar(pages) {
-  const list = document.getElementById('pageList');
-  list.innerHTML = '';
-  pages.forEach(file => {
-    const label = PAGE_LABELS[file] || (file.match(/^kitten-detail-(\d+)\.html$/) ? `Карточка котёнка №${file.match(/\d+/)[0]}` : file);
-    const btn = document.createElement('button');
-    btn.className = 'page-btn';
-    btn.dataset.file = file;
-    btn.innerHTML = `${label}<small>${file}</small>`;
-    btn.onclick = () => openPage(file, btn);
-    list.appendChild(btn);
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+function pageLabel(file) {
+  if (PAGE_LABELS[file]) return PAGE_LABELS[file];
+  const m = file.match(/^kitten-detail-(\d+)\.html$/);
+  if (m) return `Котёнок №${m[1]}`;
+  return file;
+}
+
+function buildNav(list) {
+  const el = document.getElementById('navList');
+  el.innerHTML = '';
+  list.forEach(file => {
+    const item = document.createElement('div');
+    item.className = 'nav-item';
+    item.dataset.file = file;
+    const label = pageLabel(file);
+    item.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div class="nav-item-label">${escH(label)}</div>
+        <span class="nav-item-file">${escH(file)}</span>
+      </div>
+      <span class="nav-changed-dot" style="display:none" data-dot="${escH(file)}"></span>`;
+    item.onclick = () => openPage(file);
+    el.appendChild(item);
   });
 }
 
-/* ═══════════════════════════════════════════════════════════
+function filterNav(q) {
+  const items = document.querySelectorAll('.nav-item');
+  const lq = q.toLowerCase();
+  items.forEach(item => {
+    const label = item.querySelector('.nav-item-label').textContent.toLowerCase();
+    const file  = item.dataset.file.toLowerCase();
+    item.style.display = (!lq || label.includes(lq) || file.includes(lq)) ? '' : 'none';
+  });
+}
+
+/* ══════════════════════════════════════════
    OPEN PAGE
-═══════════════════════════════════════════════════════════ */
-async function openPage(file, btnEl) {
-  if (changedCount > 0) {
-    if (!confirm('Есть несохранённые изменения на текущей странице. Перейти без сохранения?')) return;
+══════════════════════════════════════════ */
+async function openPage(file) {
+  if (changedIds.size > 0 && currentFile && currentFile !== file) {
+    if (!confirm('Есть несохранённые изменения. Перейти без сохранения?')) return;
   }
-  // Active button
-  document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
-  btnEl.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.file === file);
+  });
 
   currentFile = file;
-  changedCount = 0;
-  document.getElementById('publishBar').style.display = 'none';
+  changedIds.clear();
+  editingId = null;
+  updatePublishBar();
 
-  const label = PAGE_LABELS[file] || file;
-  document.getElementById('pageTitle').textContent = label;
-  document.getElementById('pageFilename').textContent = file;
-  document.getElementById('searchInput').value = '';
-  document.getElementById('editorPlaceholder').style.display = 'none';
-  document.getElementById('nodesList').style.display = 'none';
-  setStatus('🔄 Загрузка страницы...', '');
+  const label = pageLabel(file);
+  document.getElementById('topPage').textContent = label;
+  document.getElementById('blockSearch').value = '';
+  status('Загрузка страницы...', 'spin');
 
   try {
-    const res = await ghFetch(`${API}/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(file)}?ref=${BRANCH}`);
-    if (!res.ok) throw new Error('Не удалось загрузить файл');
-    const data = await res.json();
-    currentSha = data.sha;
-    currentHtml = decodeBase64(data.content);
-    workingHtml = currentHtml;
-    parseAndRender();
-    setStatus(`✓ Загружено. Найдено текстовых блоков: ${editNodes.length}`, 'ok');
+    const r = await gh(`${API}/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(file)}?ref=${BRANCH}`);
+    if (!r.ok) throw new Error('Не удалось загрузить файл');
+    const d = await r.json();
+    currentSha = d.sha;
+    origHtml   = decodeB64(d.content);
+    workHtml   = origHtml;
+    parseBlocks();
+    renderBlocks('');
+    status(`Загружено. Найдено блоков: ${blocks.length}`, 'ok');
   } catch(e) {
-    setStatus('❌ ' + e.message, 'err');
+    status('❌ ' + e.message, 'err');
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   PARSE HTML → TEXT NODES
-   Finds all visible text nodes, including those split by <a>
-═══════════════════════════════════════════════════════════ */
-function parseAndRender() {
-  editNodes = [];
+async function reloadCurrentPage() {
+  if (currentFile) await openPage(currentFile);
+}
 
-  // Strategy: parse into DOM, walk nodes, find TEXT nodes with content
+/* ══════════════════════════════════════════
+   PARSE HTML → CONTENT BLOCKS
+   Smart filtering: skip nav/header/footer
+══════════════════════════════════════════ */
+function parseBlocks() {
+  blocks = [];
   const parser = new DOMParser();
-  const doc = parser.parseFromString(workingHtml, 'text/html');
+  const doc = parser.parseFromString(workHtml, 'text/html');
 
-  // Skip these elements entirely
-  const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','TEMPLATE','HEAD','META','LINK']);
-  // Group context tags for display
-  const BLOCK_TAGS = new Set(['P','H1','H2','H3','H4','H5','H6','LI','TD','TH','LABEL',
-    'FIGCAPTION','BLOCKQUOTE','CITE','DT','DD','CAPTION','SUMMARY','LEGEND',
-    'BUTTON','OPTION','TITLE','DIV','SECTION','ARTICLE','ASIDE','SPAN','A']);
+  /* Mark skip zones */
+  SKIP_SELECTORS.forEach(sel => {
+    try { doc.querySelectorAll(sel).forEach(el => el.setAttribute('data-skip','1')); } catch(_){}
+  });
 
-  function getTagPath(el) {
-    const parts = [];
+  const CONTENT_TAGS = new Set([
+    'H1','H2','H3','H4','H5','H6',
+    'P','LI','BUTTON','LABEL','FIGCAPTION',
+    'TD','TH','BLOCKQUOTE','DT','DD','TITLE',
+  ]);
+
+  function inSkip(el) {
     let cur = el;
-    while (cur && cur.tagName) {
-      parts.unshift(cur.tagName.toLowerCase() + (cur.id ? '#'+cur.id : cur.className ? '.'+cur.className.split(' ')[0] : ''));
+    while (cur) {
+      if (cur.getAttribute && cur.getAttribute('data-skip')) return true;
+      if (SKIP_TAGS.has(cur.tagName)) return true;
       cur = cur.parentElement;
-      if (parts.length > 4) break;
     }
-    return parts.join(' > ');
+    return false;
   }
 
-  // We want to collect "paragraph-level" blocks — element + its full visible text
-  function collectBlocks(root) {
-    const blocks = [];
-
-    function visit(el) {
-      if (!el || SKIP_TAGS.has(el.tagName)) return;
-      // Check if this is an interesting block-level element
-      const tag = el.tagName;
-      if (BLOCK_TAGS.has(tag) && el.childNodes.length > 0) {
-        // Collect visible text of this element
-        const visText = getVisibleText(el).trim();
-        if (visText.length > 1) {
-          blocks.push({ el, visText, tag, path: getTagPath(el) });
-          return; // Don't recurse into children — they'll be sub-parts
-        }
-      }
-      // Recurse
-      for (const child of el.children) visit(child);
+  function visText(el) {
+    let t = '';
+    for (const n of el.childNodes) {
+      if (n.nodeType === 3) t += n.textContent;
+      else if (n.nodeType === 1 && !SKIP_TAGS.has(n.tagName)) t += visText(n);
     }
-
-    visit(root);
-    return blocks;
+    return t;
   }
 
-  function getVisibleText(el) {
-    let text = '';
-    for (const node of el.childNodes) {
-      if (node.nodeType === 3) { // TEXT_NODE
-        text += node.textContent;
-      } else if (node.nodeType === 1) {
-        const t = node.tagName;
-        if (!SKIP_TAGS.has(t)) text += getVisibleText(node);
+  function walk(el) {
+    if (!el || inSkip(el)) return;
+    if (CONTENT_TAGS.has(el.tagName)) {
+      const txt = visText(el).replace(/\s+/g,' ').trim();
+      if (txt.length >= 2) {
+        blocks.push({ id: blocks.length, tag: el.tagName, text: txt, modified: false });
+        return; // don't recurse inside
       }
     }
-    return text;
+    for (const child of el.children) walk(child);
   }
 
-  const body = doc.body;
-  const blocks = collectBlocks(body);
+  walk(doc.body);
 
-  // Deduplicate by visText (parent often repeats child text)
-  const seen = new Map();
-  const deduped = [];
-  for (const b of blocks) {
-    if (!seen.has(b.visText)) {
-      seen.set(b.visText, true);
-      deduped.push(b);
-    }
-  }
-
-  // Build edit nodes with original HTML snippet for replacement
-  editNodes = deduped.map((b, i) => ({
-    id: i,
-    visText: b.visText,
-    tag: b.tag,
-    path: b.path,
-    modified: false,
-  }));
-
-  renderNodes('');
+  /* Deduplicate: remove blocks whose text is contained in a parent block */
+  const texts = blocks.map(b => b.text);
+  const deduped = blocks.filter((b, i) => {
+    return !texts.some((other, j) => j !== i && other.includes(b.text) && other.length > b.text.length + 4);
+  });
+  blocks = deduped.map((b, i) => ({ ...b, id: i }));
 }
 
-/* ═══════════════════════════════════════════════════════════
-   RENDER NODES
-═══════════════════════════════════════════════════════════ */
-function renderNodes(filter) {
-  const list = document.getElementById('nodesList');
-  list.innerHTML = '';
-  list.style.display = 'flex';
+/* ══════════════════════════════════════════
+   RENDER BLOCKS
+══════════════════════════════════════════ */
+function renderBlocks(filter) {
+  const wrap = document.getElementById('blocksWrap');
+  wrap.innerHTML = '';
+
+  if (!blocks.length) {
+    wrap.innerHTML = `<div class="empty-state">
+      <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <p>Выберите страницу слева</p></div>`;
+    return;
+  }
 
   const q = filter.trim().toLowerCase();
-  const visible = editNodes.filter(n => !q || n.visText.toLowerCase().includes(q));
+  const visible = q ? blocks.filter(b => b.text.toLowerCase().includes(q)) : blocks;
 
-  if (visible.length === 0) {
-    list.innerHTML = `<div class="empty-state">Ничего не найдено по запросу «${escHtml(filter)}»</div>`;
+  document.getElementById('countBadge').textContent = visible.length !== blocks.length
+    ? `${visible.length} из ${blocks.length}` : `${blocks.length} блоков`;
+
+  if (!visible.length) {
+    wrap.innerHTML = `<div class="empty-state"><p>Ничего не найдено</p></div>`;
     return;
   }
 
-  visible.forEach(node => {
-    const card = document.createElement('div');
-    card.className = 'node-card' + (node.modified ? ' highlight' : '');
-    card.dataset.nodeId = node.id;
-
-    const displayText = escHtml(node.visText.length > 300 ? node.visText.slice(0, 300) + '…' : node.visText);
-    const highlightedText = q ? displayText.replace(new RegExp(escRegex(escHtml(q)), 'gi'), m => `<mark>${m}</mark>`) : displayText;
-
-    card.innerHTML = `
-      <div class="node-header">
-        <span class="node-tag">${node.tag.toLowerCase()}</span>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#999">${escHtml(node.path)}</span>
-        ${node.modified ? '<span class="changed-badge">изменено</span>' : ''}
-      </div>
-      <div class="node-body">
-        <div class="node-text-display">${highlightedText}</div>
-      </div>
-      <div class="node-actions">
-        <button class="btn-edit" onclick="openEditModal(${node.id})">✏️ Редактировать</button>
-      </div>`;
-    list.appendChild(card);
-  });
+  visible.forEach(b => wrap.appendChild(makeCard(b, q)));
 }
 
-function filterNodes() {
-  renderNodes(document.getElementById('searchInput').value);
-}
+function makeCard(b, highlight) {
+  const div = document.createElement('div');
+  div.className = `block${b.modified ? ' modified' : ''}${editingId === b.id ? ' editing' : ''}`;
+  div.id = `block-${b.id}`;
 
-/* ═══════════════════════════════════════════════════════════
-   EDIT MODAL
-═══════════════════════════════════════════════════════════ */
-function openEditModal(nodeId) {
-  pendingNodeIndex = nodeId;
-  const node = editNodes[nodeId];
-  document.getElementById('modalOldText').textContent = node.visText;
-  document.getElementById('modalNewText').value = node.visText;
-  document.getElementById('diffPreview').classList.remove('visible');
-  document.getElementById('editModal').style.display = 'flex';
-  setTimeout(() => document.getElementById('modalNewText').focus(), 80);
-}
+  const typeLabel = TAG_LABELS[b.tag] || b.tag.toLowerCase();
+  const tagStr    = b.tag.toLowerCase();
 
-function closeModal() {
-  document.getElementById('editModal').style.display = 'none';
-  pendingNodeIndex = null;
-}
-
-function closeModalOutside(e) {
-  if (e.target === document.getElementById('editModal')) closeModal();
-}
-
-function updatePreview() {
-  const oldVal = document.getElementById('modalOldText').textContent;
-  const newVal = document.getElementById('modalNewText').value;
-  const preview = document.getElementById('diffPreview');
-  if (newVal === oldVal || !newVal.trim()) {
-    preview.classList.remove('visible');
-    return;
+  let displayText = escH(b.text.length > 400 ? b.text.slice(0,400)+'…' : b.text);
+  if (highlight) {
+    const re = new RegExp(escRe(escH(highlight)), 'gi');
+    displayText = displayText.replace(re, m => `<mark>${m}</mark>`);
   }
-  preview.innerHTML = `<span class="diff-del">${escHtml(oldVal.slice(0,120))}${oldVal.length>120?'…':''}</span> → <span class="diff-add">${escHtml(newVal.slice(0,120))}${newVal.length>120?'…':''}</span>`;
-  preview.classList.add('visible');
+
+  div.innerHTML = `
+    <div class="block-meta" onclick="toggleEdit(${b.id})">
+      <span class="block-type-label">${escH(typeLabel)}</span>
+      <span class="block-tag">${escH(tagStr)}</span>
+      ${b.modified ? '<span class="mod-badge">✏ изменено</span>' : ''}
+    </div>
+    <div class="block-view" id="bview-${b.id}" onclick="toggleEdit(${b.id})">${displayText}</div>
+    <div class="block-editor${editingId===b.id?' open':''}" id="bedit-${b.id}">
+      <textarea class="block-textarea" id="bta-${b.id}"
+        oninput="onTextareaInput(${b.id}, this)"
+        onkeydown="onTextareaKey(event, ${b.id})"
+      >${escH(b.text)}</textarea>
+      <div class="block-actions">
+        <button class="btn-save" onclick="saveBlock(${b.id})">✓ Сохранить</button>
+        <button class="btn-cancel" onclick="cancelEdit(${b.id})">Отмена</button>
+        <span class="char-count" id="bcc-${b.id}">${b.text.length} симв.</span>
+      </div>
+    </div>`;
+  return div;
 }
 
-function applyEdit() {
-  if (pendingNodeIndex === null) return;
-  const node = editNodes[pendingNodeIndex];
-  const newText = document.getElementById('modalNewText').value.trim();
-  if (!newText || newText === node.visText) { closeModal(); return; }
+/* ══════════════════════════════════════════
+   INLINE EDIT LOGIC
+══════════════════════════════════════════ */
+function toggleEdit(id) {
+  if (editingId === id) return;   // already editing this one
+  if (editingId !== null) cancelEdit(editingId); // close previous
 
-  // Replace in workingHtml — smart replacement that handles tags inside
-  const replaced = replaceVisibleText(workingHtml, node.visText, newText);
+  editingId = id;
+  const card = document.getElementById(`block-${id}`);
+  if (!card) return;
+  card.classList.add('editing');
+
+  const view = document.getElementById(`bview-${id}`);
+  const edit = document.getElementById(`bedit-${id}`);
+  view.style.display = 'none';
+  edit.classList.add('open');
+
+  const ta = document.getElementById(`bta-${id}`);
+  ta.value = blocks[id].text;
+  autoResize(ta);
+  ta.focus();
+  // Place cursor at end
+  ta.selectionStart = ta.selectionEnd = ta.value.length;
+}
+
+function cancelEdit(id) {
+  if (editingId !== id) return;
+  editingId = null;
+  const card = document.getElementById(`block-${id}`);
+  if (!card) return;
+  card.classList.remove('editing');
+  document.getElementById(`bview-${id}`).style.display = '';
+  document.getElementById(`bedit-${id}`).classList.remove('open');
+}
+
+function onTextareaInput(id, ta) {
+  autoResize(ta);
+  document.getElementById(`bcc-${id}`).textContent = ta.value.length + ' симв.';
+}
+
+function onTextareaKey(e, id) {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveBlock(id); }
+  if (e.key === 'Escape') { e.preventDefault(); cancelEdit(id); }
+}
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+function saveBlock(id) {
+  const ta    = document.getElementById(`bta-${id}`);
+  const newTxt = ta.value.trim();
+  const block  = blocks[id];
+
+  if (!newTxt || newTxt === block.text) { cancelEdit(id); return; }
+
+  /* Smart replace in workHtml */
+  const replaced = smartReplace(workHtml, block.text, newTxt);
   if (replaced === null) {
-    setStatus('⚠️ Не удалось найти текст в HTML. Попробуйте скопировать более точный кусок.', 'err');
-    closeModal();
+    status('⚠️ Не удалось найти этот текст в коде страницы. Попробуйте другой блок.', 'err');
+    cancelEdit(id);
     return;
   }
 
-  workingHtml = replaced;
-  node.visText = newText;
-  node.modified = true;
-  changedCount++;
+  workHtml = replaced;
+  block.text = newTxt;
+  block.modified = true;
+  changedIds.add(id);
+  editingId = null;
 
-  closeModal();
-  renderNodes(document.getElementById('searchInput').value);
-  document.getElementById('publishBar').style.display = 'flex';
-  setStatus(`✓ Применено (${changedCount} изм.). Нажмите «Опубликовать» чтобы сохранить на сайт.`, 'ok');
+  /* Re-render just this card */
+  const q = document.getElementById('blockSearch').value;
+  const card = document.getElementById(`block-${id}`);
+  if (card) {
+    const newCard = makeCard(block, q.trim().toLowerCase());
+    card.replaceWith(newCard);
+  }
+
+  updatePublishBar();
+  updateNavDot(currentFile, true);
+  status(`✓ Изменено: ${changedIds.size} блок(ов). Нажмите «Опубликовать».`, 'ok');
 }
 
-/* ═══════════════════════════════════════════════════════════
-   SMART REPLACE — finds visible text even with tags inside
-   Strategy:
-   1. Try exact string match first (simple text nodes)
-   2. Try match ignoring inner HTML tags (smart mode)
-   3. Try normalized whitespace match
-═══════════════════════════════════════════════════════════ */
-function replaceVisibleText(html, oldText, newText) {
-  // 1. Direct match (most reliable, fastest)
-  const directIdx = html.indexOf(oldText);
-  if (directIdx !== -1) {
-    return html.slice(0, directIdx) + newText + html.slice(directIdx + oldText.length);
+/* ══════════════════════════════════════════
+   SMART REPLACE
+   5-strategy engine (best-in-class patterns)
+══════════════════════════════════════════ */
+function smartReplace(html, oldText, newText) {
+  // 1. Exact match
+  let i = html.indexOf(oldText);
+  if (i !== -1) return html.slice(0, i) + newText + html.slice(i + oldText.length);
+
+  // 2. Normalized quotes/spaces
+  const norm = s => s
+    .replace(/[\u2018\u2019\u201A\u201B\u0060\u00B4]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+
+  const normOld = norm(oldText);
+  const normHtml = norm(html);
+  i = normHtml.indexOf(normOld);
+  if (i !== -1) {
+    // Find real position in original html (approximate by scanning)
+    const realIdx = findRealIdx(html, oldText, normOld);
+    if (realIdx !== -1) return html.slice(0, realIdx) + newText + html.slice(realIdx + oldText.length);
   }
 
-  // 2. Normalize apostrophes and quotes, try again
-  const oldNorm = normalizeQuotes(oldText);
-  if (oldNorm !== oldText) {
-    const normIdx = normalizeQuotes(html).indexOf(oldNorm);
-    if (normIdx !== -1) {
-      return html.slice(0, normIdx) + newText + html.slice(normIdx + oldText.length);
-    }
-  }
-
-  // 3. Smart mode: the visible text may be split by <a>, <strong>, etc.
-  // Build a regex that matches the text with optional HTML tags between words
-  const escaped = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // Allow tags between any two characters
-  const tagPattern = '(?:<[^>]*>)*';
-  const regexStr = escaped.split('').join(tagPattern);
+  // 3. Text split by inline tags (<a>, <strong>, <em>, <span>, <br> etc.)
+  // Build a regex: each char can be followed by zero or more HTML tags
+  const tagRe = '(?:<(?!script|style)[^>]*>\\s*)*';
+  const escaped = oldText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+  const perChar = escaped.split('').join(tagRe);
   try {
-    const re = new RegExp(regexStr);
-    const match = html.match(re);
-    if (match) {
-      return html.replace(re, newText);
-    }
+    const re = new RegExp(perChar, 'i');
+    const m  = html.match(re);
+    if (m) return html.slice(0, m.index) + newText + html.slice(m.index + m[0].length);
   } catch(_) {}
 
-  // 4. Word-boundary fuzzy: split into significant words, find block containing all of them
-  const words = oldText.split(/\s+/).filter(w => w.length > 3);
+  // 4. First+last word anchoring (handles minor whitespace diffs)
+  const words = oldText.split(/\s+/).filter(w => w.length > 2);
   if (words.length >= 2) {
-    // Find a region that contains all words
-    const firstWord = words[0];
-    let searchFrom = 0;
-    while (searchFrom < html.length) {
-      const idx = html.indexOf(firstWord, searchFrom);
-      if (idx === -1) break;
-      // Check if subsequent words appear nearby (within 500 chars)
-      const region = html.slice(idx, idx + oldText.length + 200);
-      const allPresent = words.every(w => region.includes(w));
-      if (allPresent) {
-        // Replace the region: find where the last word ends
-        const lastWord = words[words.length - 1];
-        const lastIdx = region.lastIndexOf(lastWord);
-        const endIdx = idx + lastIdx + lastWord.length;
-        return html.slice(0, idx) + newText + html.slice(endIdx);
+    const fw = words[0], lw = words[words.length - 1];
+    const si = html.indexOf(fw);
+    if (si !== -1) {
+      const region = html.slice(si, si + oldText.length + 300);
+      if (words.every(w => region.includes(w))) {
+        const li = region.lastIndexOf(lw);
+        if (li !== -1) {
+          const end = si + li + lw.length;
+          return html.slice(0, si) + newText + html.slice(end);
+        }
       }
-      searchFrom = idx + 1;
     }
   }
 
-  return null; // could not find
+  // 5. Significant-words fuzzy — last resort
+  const sigWords = words.filter(w => w.length > 4).slice(0, 4);
+  if (sigWords.length >= 2) {
+    let pos = 0;
+    while (pos < html.length) {
+      const idx = html.indexOf(sigWords[0], pos);
+      if (idx === -1) break;
+      const region = html.slice(idx, idx + oldText.length + 500);
+      if (sigWords.every(w => region.includes(w))) {
+        const lw2 = sigWords[sigWords.length - 1];
+        const li2 = region.lastIndexOf(lw2);
+        if (li2 !== -1) {
+          const end2 = idx + li2 + lw2.length;
+          return html.slice(0, idx) + newText + html.slice(end2);
+        }
+      }
+      pos = idx + 1;
+    }
+  }
+
+  return null;
 }
 
-function normalizeQuotes(s) {
-  return s.replace(/[\u2018\u2019\u201A\u201B]/g, "'")
-           .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
-           .replace(/\u2013|\u2014/g, '-')
-           .replace(/\s+/g, ' ');
+function findRealIdx(html, origText, normOld) {
+  // Scan html and try norm comparison around likely positions
+  const firstWord = origText.split(/\s+/)[0];
+  let p = 0;
+  while (p < html.length) {
+    const i = html.indexOf(firstWord, p);
+    if (i === -1) break;
+    const chunk = html.slice(i, i + origText.length + 10);
+    const normChunk = chunk.replace(/[\u2018\u2019\u201A\u201B]/g,"'")
+      .replace(/[\u201C\u201D\u201E\u201F]/g,'"')
+      .replace(/[\u2013\u2014]/g,'-').replace(/\u00A0/g,' ').replace(/\s+/g,' ').trim();
+    if (normChunk.startsWith(normOld.slice(0, 20))) return i;
+    p = i + 1;
+  }
+  return -1;
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════
+   SEARCH FILTER
+══════════════════════════════════════════ */
+function filterBlocks(q) {
+  renderBlocks(q);
+}
+
+/* ══════════════════════════════════════════
    PUBLISH
-═══════════════════════════════════════════════════════════ */
-async function publishChanges() {
-  if (!currentFile || !currentSha) return;
+══════════════════════════════════════════ */
+async function publish() {
+  if (!currentFile || !currentSha || changedIds.size === 0) return;
   const btn = document.getElementById('publishBtn');
   btn.disabled = true;
   btn.textContent = '⏳ Публикация...';
-  setStatus('🔄 Публикация на GitHub...', '');
+  status('Публикация на GitHub...', 'spin');
 
   try {
-    const encoded = encodeBase64(workingHtml);
-    const res = await ghFetch(`${API}/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(currentFile)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+    const r = await gh(`${API}/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(currentFile)}`, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        message: `edit(text): update text on ${currentFile}`,
-        content: encoded,
+        message: `edit: update content on ${currentFile}`,
+        content: encodeB64(workHtml),
         sha: currentSha,
         branch: BRANCH,
       })
     });
-    if (!res.ok) {
-      const j = await res.json();
-      throw new Error(j.message || 'GitHub API error');
-    }
-    const data = await res.json();
-    currentSha = data.content.sha;
-    currentHtml = workingHtml;
-    changedCount = 0;
-    document.getElementById('publishBar').style.display = 'none';
-    btn.textContent = '🚀 Опубликовать';
+    if (!r.ok) { const j = await r.json(); throw new Error(j.message); }
+    const d = await r.json();
+    currentSha = d.content.sha;
+    origHtml   = workHtml;
+    changedIds.clear();
+    blocks.forEach(b => b.modified = false);
+    updatePublishBar();
+    updateNavDot(currentFile, false);
     btn.disabled = false;
-    setStatus(`✅ Опубликовано! Сайт обновится через ~1 мин. → https://gardenstatecoon.com/${currentFile}`, 'ok');
+    btn.textContent = '🚀 Опубликовать';
+    status(`✅ Готово! Сайт обновится за ~1 мин → https://gardenstatecoon.com/${currentFile}`, 'ok');
+    // Refresh view to remove "изменено" badges
+    renderBlocks(document.getElementById('blockSearch').value);
   } catch(e) {
-    btn.textContent = '🚀 Опубликовать';
     btn.disabled = false;
-    setStatus('❌ Ошибка публикации: ' + e.message, 'err');
+    btn.textContent = '🚀 Опубликовать';
+    status('❌ Ошибка: ' + e.message, 'err');
   }
 }
 
-function discardChanges() {
+function discardAll() {
   if (!confirm('Отменить все изменения на этой странице?')) return;
-  workingHtml = currentHtml;
-  changedCount = 0;
-  editNodes.forEach(n => n.modified = false);
-  document.getElementById('publishBar').style.display = 'none';
-  renderNodes(document.getElementById('searchInput').value);
-  setStatus('✓ Изменения отменены.', 'ok');
+  workHtml = origHtml;
+  changedIds.clear();
+  editingId = null;
+  parseBlocks();
+  renderBlocks(document.getElementById('blockSearch').value);
+  updatePublishBar();
+  updateNavDot(currentFile, false);
+  status('Изменения отменены.', 'ok');
 }
 
-async function reloadPage() {
-  if (currentFile) {
-    const activeBtn = document.querySelector('.page-btn.active');
-    if (activeBtn) openPage(currentFile, activeBtn);
-  }
+/* ══════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════ */
+function updatePublishBar() {
+  const bar     = document.getElementById('publishBar');
+  const discard = document.getElementById('discardBtn');
+  const has     = changedIds.size > 0;
+  bar.classList.toggle('visible', has);
+  discard.style.display = has ? '' : 'none';
+  document.getElementById('changeCount').textContent = changedIds.size;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════════════════════ */
-function ghFetch(url, opts = {}) {
+function updateNavDot(file, on) {
+  const dot = document.querySelector(`[data-dot="${CSS.escape(file)}"]`);
+  if (dot) dot.style.display = on ? '' : 'none';
+}
+
+function status(msg, type) {
+  const bar = document.getElementById('statusBar');
+  if (type === 'ok')   bar.innerHTML = `<span class="s-ok">${escH(msg)}</span>`;
+  else if (type==='err') bar.innerHTML = `<span class="s-err">${escH(msg)}</span>`;
+  else bar.innerHTML = `<span class="spin"></span> ${escH(msg)}`;
+}
+
+/* ══════════════════════════════════════════
+   GITHUB API
+══════════════════════════════════════════ */
+function gh(url, opts = {}) {
   opts.headers = Object.assign({
     'Authorization': `Bearer ${token}`,
     'Accept': 'application/vnd.github+json',
@@ -693,37 +900,31 @@ function ghFetch(url, opts = {}) {
   return fetch(url, opts);
 }
 
-function decodeBase64(b64) {
-  const clean = b64.replace(/\s/g, '');
-  const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+function decodeB64(b64) {
+  const bytes = Uint8Array.from(atob(b64.replace(/\s/g,'')), c => c.charCodeAt(0));
   return new TextDecoder('utf-8').decode(bytes);
 }
 
-function encodeBase64(str) {
+function encodeB64(str) {
   const bytes = new TextEncoder().encode(str);
   let b = '';
   for (const byte of bytes) b += String.fromCharCode(byte);
   return btoa(b);
 }
 
-function escHtml(s) {
+function escH(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function escRegex(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 }
 
-function setStatus(msg, type) {
-  const bar = document.getElementById('statusBar');
-  bar.className = 'status-bar';
-  if (type === 'ok') bar.innerHTML = `<span class="status-ok">${msg}</span>`;
-  else if (type === 'err') bar.innerHTML = `<span class="status-err">${msg}</span>`;
-  else bar.innerHTML = `<span class="spinner"></span> ${escHtml(msg)}`;
-}
-
-/* Boot */
-loadToken();
+/* ══════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════ */
+token = localStorage.getItem('gsc_tok') || '';
+if (token) boot();
 </script>
 </body>
 </html>

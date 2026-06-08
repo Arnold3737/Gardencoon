@@ -11,9 +11,10 @@
  *   или двойным кликом по run.bat внутри папки с котёнком.
  *
  * Папка котёнка должна содержать:
- *   - kitten.json          — данные котёнка (шаблон в kitten-template/)
  *   - 1–4 фото             — .jpg/.jpeg/.png/.webp (первое = главное)
  *   - 0–1 видео            — .mp4/.mov/.webm (опционально)
+ *   - kitten.json          — НЕОБЯЗАТЕЛЬНО. Если файла нет, скрипт
+ *                            сам задаст вопросы в консоли и создаст его.
  *
  * Флаги:
  *   --no-push              — не пушить в git (только локальные изменения)
@@ -24,6 +25,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const readline = require('readline');
 const { execSync } = require('child_process');
 
 // ── Пути репозитория ────────────────────────────────────────────────────────
@@ -40,41 +42,116 @@ const NO_PUSH  = FLAGS.has('--no-push');
 const DRY_RUN  = FLAGS.has('--dry-run');
 
 // ── Чтение kitten.json ──────────────────────────────────────────────────────
-const CONFIG_PATH = path.join(KITTEN_DIR, 'kitten.json');
-if (!fs.existsSync(CONFIG_PATH)) {
-  console.error(`❌ Файл kitten.json не найден: ${CONFIG_PATH}`);
-  console.error('   Скопируй шаблон из kitten-template/kitten.json');
-  process.exit(1);
-}
-const cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-
-const REQUIRED = ['name', 'gender', 'color', 'status', 'description'];
-const missing  = REQUIRED.filter(f => !cfg[f]);
-if (missing.length) {
-  console.error(`❌ В kitten.json не хватает полей: ${missing.join(', ')}`);
-  process.exit(1);
-}
-
 const VALID_STATUS = ['available', 'reserved', 'sold', 'coming-soon'];
-if (!VALID_STATUS.includes(cfg.status)) {
-  console.error(`❌ Недопустимый status: "${cfg.status}". Можно: ${VALID_STATUS.join(', ')}`);
-  process.exit(1);
+const CONFIG_PATH = path.join(KITTEN_DIR, 'kitten.json');
+
+let cfg;            // данные котёнка
+let usedPhotos;     // до 4 фото
+let videoFile;      // видео или null
+let N;              // номер котёнка
+let detailPage;     // kitten-detail-N.html
+let slug;           // slug из имени
+
+// Читаем все строки stdin через буфер — работает и в терминале, и при pipe.
+function makeAsker() {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: false });
+  const queue = [];
+  const waiters = [];
+  rl.on('line', line => {
+    if (waiters.length) waiters.shift()(line);
+    else queue.push(line);
+  });
+  let closed = false;
+  rl.on('close', () => {
+    closed = true;
+    while (waiters.length) waiters.shift()(null); // null = конец ввода
+  });
+  const nextLine = () => new Promise(res => {
+    if (queue.length) return res(queue.shift());
+    if (closed) return res(null);
+    waiters.push(res);
+  });
+  const ask = async (question, { def = '', required = false, choices = null } = {}) => {
+    const hint = def ? ` [${def}]` : '';
+    const choiceHint = choices ? ` (${choices.join(' / ')})` : '';
+    for (;;) {
+      process.stdout.write(`${question}${choiceHint}${hint}: `);
+      const raw = await nextLine();
+      let v = (raw == null ? '' : raw).trim();
+      if (!v && def) v = def;
+      if (!v && required) {
+        if (raw == null) { console.error('\n❌ Ввод прерван, а поле обязательное.'); process.exit(1); }
+        console.log('   ⚠️  Это поле обязательное, введите значение.'); continue;
+      }
+      if (choices && v && !choices.includes(v)) {
+        console.log(`   ⚠️  Допустимые варианты: ${choices.join(', ')}`); continue;
+      }
+      return v;
+    }
+  };
+  return { ask, close: () => rl.close() };
+}
+
+async function wizard() {
+  console.log('\n✍️  Мастер добавления котёнка (Enter = оставить значение в скобках)\n');
+  const { ask, close } = makeAsker();
+  const data = {};
+  data.name = await ask('Имя котёнка (латиницей)', { required: true });
+  const g = await ask('Пол', { choices: ['м', 'ж', 'Male', 'Female'], def: 'м' });
+  data.gender = (g === 'м' || g.toLowerCase() === 'male') ? 'Male' : 'Female';
+  data.color = await ask('Окрас (напр. Blue Smoke, Silver Shaded)', { required: true });
+  data.status = await ask('Статус', { choices: VALID_STATUS, def: 'available' });
+  data.description = await ask('Описание (1–3 предложения на английском)', { required: true });
+  const sireName = await ask('Отец (имя)', { def: 'Hudson' });
+  const sireTitle = await ask('Отец (описание)', { def: 'Brown Classic Tabby · Registered lines · Health-screened' });
+  const damName = await ask('Мать (имя)', { def: 'Willow' });
+  const damTitle = await ask('Мать (описание)', { def: 'Blue Smoke · Registered lines · Health-screened' });
+  data.sire = { name: sireName, title: sireTitle };
+  data.dam = { name: damName, title: damTitle };
+  console.log('');
+  close();
+  return data;
+}
+async function loadOrCreateConfig() {
+  if (fs.existsSync(CONFIG_PATH)) {
+    cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  } else {
+    console.log(`\nℹ️  Файл kitten.json не найден — запускаю мастер вопросов.`);
+    cfg = await wizard();
+    if (!DRY_RUN) {
+      fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8');
+      console.log(`  ✓ Сохранён ${CONFIG_PATH}`);
+    }
+  }
+  const REQUIRED = ['name', 'gender', 'color', 'status', 'description'];
+  const missing  = REQUIRED.filter(f => !cfg[f]);
+  if (missing.length) {
+    console.error(`❌ В kitten.json не хватает полей: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  if (!VALID_STATUS.includes(cfg.status)) {
+    console.error(`❌ Недопустимый status: "${cfg.status}". Можно: ${VALID_STATUS.join(', ')}`);
+    process.exit(1);
+  }
 }
 
 // ── Поиск фото и видео ──────────────────────────────────────────────────────
-const all = fs.readdirSync(KITTEN_DIR).sort();
-const photos = all.filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
-const videos = all.filter(f => /\.(mp4|mov|webm)$/i.test(f));
+function findMedia() {
+  const all = fs.readdirSync(KITTEN_DIR).sort();
+  const photos = all.filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
+  const videos = all.filter(f => /\.(mp4|mov|webm)$/i.test(f));
 
-if (photos.length === 0) {
-  console.error('❌ В папке нет фотографий (.jpg/.jpeg/.png/.webp)');
-  process.exit(1);
+  if (photos.length === 0) {
+    console.error('❌ В папке нет фотографий (.jpg/.jpeg/.png/.webp)');
+    console.error(`   Папка: ${KITTEN_DIR}`);
+    process.exit(1);
+  }
+  if (photos.length > 4) {
+    console.warn(`⚠️  Найдено ${photos.length} фото, использую первые 4 (по алфавиту).`);
+  }
+  usedPhotos = photos.slice(0, 4);
+  videoFile  = videos[0] || null;
 }
-if (photos.length > 4) {
-  console.warn(`⚠️  Найдено ${photos.length} фото, использую первые 4.`);
-}
-const usedPhotos = photos.slice(0, 4);
-const videoFile  = videos[0] || null;
 
 // ── Следующий номер котёнка ─────────────────────────────────────────────────
 function getNextKittenNumber() {
@@ -83,9 +160,7 @@ function getNextKittenNumber() {
     .map(f => parseInt(f.match(/\d+/)[0], 10));
   return nums.length ? Math.max(...nums) + 1 : 1;
 }
-const N = getNextKittenNumber();
-const detailPage = `kitten-detail-${N}.html`;
-const slug = cfg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
 
 // ── Утилиты ─────────────────────────────────────────────────────────────────
 function escHtml(s = '') {
@@ -551,6 +626,15 @@ function gitPublish() {
 
 // ── Главная функция ─────────────────────────────────────────────────────────
 (async function main() {
+  // 1) Данные котёнка: из kitten.json или через мастер вопросов
+  await loadOrCreateConfig();
+  // 2) Фото/видео в папке
+  findMedia();
+  // 3) Номер и путь карточки
+  N = getNextKittenNumber();
+  detailPage = `kitten-detail-${N}.html`;
+  slug = cfg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
   console.log(`\n🐱 Garden State Coon — добавление котёнка: ${cfg.name}`);
   console.log(`   Папка: ${KITTEN_DIR}`);
   console.log(`   Карточка: ${detailPage} (№${N})`);

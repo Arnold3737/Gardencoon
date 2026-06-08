@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✏️ Редактор текста — Garden State Coon</title>
+<style>
+  :root {
+    --green: #1a6b3a;
+    --green-light: #e8f5ee;
+    --green-dark: #0e4425;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --orange: #e67e22;
+    --gray: #555;
+    --gray-light: #f4f4f4;
+    --border: #ddd;
+    --radius: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; }
+
+  /* ── HEADER ───────────────────────────── */
+  .header { background: var(--green-dark); color: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 1.15rem; font-weight: 600; }
+  .header .badge { background: #fff2; font-size: .75rem; padding: 3px 10px; border-radius: 99px; }
+
+  /* ── LAYOUT ───────────────────────────── */
+  .layout { display: flex; height: calc(100vh - 52px); }
+
+  /* ── SIDEBAR ──────────────────────────── */
+  .sidebar { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar-title { padding: 14px 16px 8px; font-size: .78rem; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .06em; }
+  .page-btn { display: block; width: 100%; text-align: left; padding: 9px 16px; border: none; background: none; cursor: pointer; font-size: .9rem; color: #333; border-left: 3px solid transparent; transition: all .15s; }
+  .page-btn:hover { background: var(--green-light); color: var(--green-dark); }
+  .page-btn.active { background: var(--green-light); color: var(--green-dark); font-weight: 600; border-left-color: var(--green); }
+  .page-btn small { display: block; font-size: .73rem; color: #888; margin-top: 1px; }
+
+  /* ── MAIN PANEL ───────────────────────── */
+  .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* ── TOKEN INPUT (STEP 0) ─────────────── */
+  .token-screen { display: flex; align-items: center; justify-content: center; flex: 1; padding: 24px; }
+  .token-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 36px; max-width: 500px; width: 100%; }
+  .token-card h2 { font-size: 1.2rem; margin-bottom: 8px; color: var(--green-dark); }
+  .token-card p { font-size: .9rem; color: var(--gray); margin-bottom: 18px; line-height: 1.5; }
+  .token-card a { color: var(--green); }
+  .token-input-row { display: flex; gap: 8px; }
+  .token-input-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: .95rem; font-family: monospace; }
+  .btn { padding: 9px 20px; border-radius: var(--radius); border: none; cursor: pointer; font-size: .9rem; font-weight: 600; transition: background .15s; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: var(--green-dark); }
+  .btn-green:disabled { background: #aaa; cursor: default; }
+  .btn-gray { background: #e0e0e0; color: #333; }
+  .btn-gray:hover { background: #ccc; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #a93226; }
+  .token-note { font-size: .8rem; color: #888; margin-top: 10px; }
+
+  /* ── PAGE HEADER ──────────────────────── */
+  .page-header { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .page-header h2 { font-size: 1.05rem; font-weight: 600; flex: 1; min-width: 200px; }
+  .page-header .filename { font-size: .8rem; color: #888; font-family: monospace; }
+  .search-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .search-row input { padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: .9rem; min-width: 220px; }
+
+  /* ── EDITOR AREA ──────────────────────── */
+  .editor-area { flex: 1; overflow-y: auto; padding: 20px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: 10px; color: #aaa; font-size: 1.1rem; }
+  .placeholder svg { width: 60px; height: 60px; opacity: .3; }
+
+  /* ── TEXT NODES LIST ──────────────────── */
+  .nodes-list { display: flex; flex-direction: column; gap: 10px; }
+  .node-card { background: #fff; border-radius: var(--radius); box-shadow: 0 1px 4px rgba(0,0,0,.07); overflow: hidden; border: 1px solid var(--border); transition: box-shadow .15s; }
+  .node-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.13); }
+  .node-card.highlight { border-color: var(--green); box-shadow: 0 0 0 2px rgba(26,107,58,.18); }
+  .node-header { padding: 8px 14px; background: var(--gray-light); font-size: .75rem; color: var(--gray); display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+  .node-tag { background: #dde; color: #446; padding: 1px 7px; border-radius: 4px; font-family: monospace; font-size: .78rem; }
+  .node-body { padding: 12px 14px; }
+  .node-text-display { font-size: .95rem; line-height: 1.55; color: #222; word-break: break-word; }
+  .node-text-display mark { background: #fff176; border-radius: 2px; padding: 0 1px; }
+  .node-actions { padding: 8px 14px 12px; display: flex; gap: 8px; }
+  .btn-edit { padding: 5px 14px; font-size: .83rem; background: var(--green-light); color: var(--green-dark); border: 1px solid #b2ddc4; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+  .btn-edit:hover { background: #c4edd8; }
+
+  /* ── EDIT MODAL ───────────────────────── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: #fff; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,.22); width: 100%; max-width: 640px; overflow: hidden; }
+  .modal-header { background: var(--green-dark); color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-header h3 { font-size: 1rem; }
+  .modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0 4px; }
+  .modal-body { padding: 20px; }
+  .modal-section { margin-bottom: 16px; }
+  .modal-label { font-size: .8rem; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .modal-old { background: var(--red-light); border: 1px solid #f5c6c2; border-radius: var(--radius); padding: 10px 14px; font-size: .9rem; line-height: 1.5; color: #7a1a1a; word-break: break-word; max-height: 100px; overflow-y: auto; }
+  .modal-new textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: .92rem; font-family: inherit; resize: vertical; min-height: 70px; line-height: 1.5; }
+  .modal-new textarea:focus { outline: 2px solid var(--green); border-color: var(--green); }
+  .diff-preview { background: var(--green-light); border: 1px solid #b2ddc4; border-radius: var(--radius); padding: 10px 14px; font-size: .85rem; line-height: 1.5; display: none; }
+  .diff-preview.visible { display: block; }
+  .diff-del { color: var(--red); text-decoration: line-through; margin-right: 4px; }
+  .diff-add { color: var(--green-dark); font-weight: 600; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; background: var(--gray-light); }
+  .status-bar { padding: 8px 20px; font-size: .83rem; border-top: 1px solid var(--border); background: #fff; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .status-ok { color: var(--green-dark); font-weight: 600; }
+  .status-err { color: var(--red); font-weight: 600; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: #aaa; }
+
+  /* ── CHANGED BADGE ─────────────────────── */
+  .changed-badge { background: var(--orange); color: #fff; font-size: .7rem; padding: 1px 8px; border-radius: 99px; margin-left: 6px; }
+
+  /* ── PUBLISH BAR ───────────────────────── */
+  .publish-bar { background: #fffbe6; border-top: 2px solid var(--orange); padding: 10px 20px; display: flex; align-items: center; gap: 12px; }
+  .publish-bar p { flex: 1; font-size: .88rem; color: #7a5500; }
+
+  /* hide when no token */
+  .needs-token { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+  <h1>Редактор текста — Garden State Coon</h1>
+  <span class="badge" id="statusBadge">Введите токен</span>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">Страницы</div>
+    <div id="pageList"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main" id="mainPanel">
+
+    <!-- TOKEN SCREEN -->
+    <div class="token-screen" id="tokenScreen">
+      <div class="token-card">
+        <h2>🔑 Введите GitHub токен</h2>
+        <p>Этот редактор работает прямо в браузере и публикует изменения через GitHub API. Нужен персональный токен с правом <strong>Contents: Read &amp; Write</strong>.</p>
+        <p style="margin-bottom:14px">Создайте токен на <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> (Fine-grained, репозиторий Gardencoon, Contents = Read &amp; Write).</p>
+        <div class="token-input-row">
+          <input type="password" id="tokenInput" placeholder="github_pat_..." autocomplete="off">
+          <button class="btn btn-green" onclick="saveToken()">Войти</button>
+        </div>
+        <p class="token-note">Токен хранится только в этом браузере (localStorage). Никуда не отправляется кроме GitHub API.</p>
+        <p class="token-note" id="tokenError" style="color:var(--red);margin-top:8px"></p>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT AREA -->
+    <div id="pageArea" style="display:none;flex-direction:column;height:100%">
+      <div class="page-header">
+        <div style="flex:1">
+          <h2 id="pageTitle">Выберите страницу</h2>
+          <span class="filename" id="pageFilename"></span>
+        </div>
+        <div class="search-row">
+          <input type="search" id="searchInput" placeholder="🔍 Поиск текста..." oninput="filterNodes()">
+          <button class="btn btn-gray" onclick="reloadPage()">↺ Обновить</button>
+        </div>
+      </div>
+
+      <div class="editor-area" id="editorArea">
+        <div class="placeholder" id="editorPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Выберите страницу слева
+        </div>
+        <div class="nodes-list" id="nodesList" style="display:none"></div>
+      </div>
+
+      <div class="status-bar" id="statusBar"></div>
+
+      <div class="publish-bar" id="publishBar" style="display:none">
+        <p>⚠️ Есть несохранённые изменения. Нажмите «Опубликовать», чтобы они появились на сайте.</p>
+        <button class="btn btn-green" id="publishBtn" onclick="publishChanges()">🚀 Опубликовать</button>
+        <button class="btn btn-gray" onclick="discardChanges()">✕ Отменить всё</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" style="display:none" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Редактировать текст</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-label">Старый текст (что было)</div>
+        <div class="modal-old" id="modalOldText"></div>
+      </div>
+      <div class="modal-section modal-new">
+        <div class="modal-label">Новый текст (что будет)</div>
+        <textarea id="modalNewText" rows="3" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Предпросмотр изменения</div>
+        <div class="diff-preview" id="diffPreview"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-green" onclick="applyEdit()">✓ Применить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════ */
+const OWNER = 'Arnold3737';
+const REPO  = 'Gardencoon';
+const BRANCH = 'main';
+const API = 'https://api.github.com';
+
+const PAGE_LABELS = {
+  'index.html':            'Главная',
+  'about.html':            'О нас / О питомнике',
+  'our-cats.html':         'Наши кошки',
+  'kittens.html':          'Доступные котята',
+  'gallery.html':          'Галерея',
+  'contact.html':          'Контакты',
+  'faq.html':              'Вопросы и ответы (FAQ)',
+  'health-testing.html':   'Тестирование здоровья',
+  'shipping.html':         'Доставка',
+  'waiting-list.html':     'Лист ожидания',
+  'purchase-contract.html':'Договор покупки',
+  'terms-of-sale.html':    'Условия продажи',
+  'privacy-policy.html':   'Политика конфиденциальности',
+  'cookie-policy.html':    'Политика cookie',
+  '404.html':              'Страница 404',
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let token = '';
+let currentFile = null;
+let currentHtml = '';   // original from GitHub
+let workingHtml = '';   // with local edits
+let currentSha  = '';   // blob SHA for update
+let editNodes   = [];   // parsed text nodes
+let pendingNodeIndex = null; // which node is being edited
+let changedCount = 0;
+
+/* ═══════════════════════════════════════════════════════════
+   TOKEN
+═══════════════════════════════════════════════════════════ */
+function saveToken() {
+  const t = document.getElementById('tokenInput').value.trim();
+  if (!t) return;
+  token = t;
+  localStorage.setItem('gsc_editor_token', t);
+  init();
+}
+
+function loadToken() {
+  token = localStorage.getItem('gsc_editor_token') || '';
+  if (token) init();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT — build page list from GitHub tree
+═══════════════════════════════════════════════════════════ */
+async function init() {
+  setStatus('🔄 Загрузка списка файлов...', '');
+  try {
+    const res = await ghFetch(`${API}/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
+    if (!res.ok) {
+      const j = await res.json();
+      throw new Error(j.message || 'Ошибка GitHub API');
+    }
+    const data = await res.json();
+    const htmlFiles = data.tree
+      .filter(f => f.type === 'blob' && f.path.match(/^[^/]+\.html$/) && f.path !== 'kitten-detail.html' && f.path !== 'editor.html')
+      .map(f => f.path);
+
+    // Ordered list
+    const order = Object.keys(PAGE_LABELS);
+    const main = order.filter(f => htmlFiles.includes(f));
+    const kittens = htmlFiles
+      .filter(f => /^kitten-detail-\d+\.html$/.test(f))
+      .sort((a,b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+    const known = new Set([...main, ...kittens]);
+    const rest = htmlFiles.filter(f => !known.has(f)).sort();
+    const pages = [...main, ...kittens, ...rest];
+
+    buildSidebar(pages);
+    document.getElementById('tokenScreen').style.display = 'none';
+    document.getElementById('pageArea').style.display = 'flex';
+    document.getElementById('statusBadge').textContent = '✓ Подключено';
+    setStatus('✓ Готово. Выберите страницу слева.', 'ok');
+  } catch(e) {
+    document.getElementById('tokenError').textContent = '❌ ' + e.message;
+    document.getElementById('statusBadge').textContent = 'Ошибка';
+    token = '';
+    localStorage.removeItem('gsc_editor_token');
+  }
+}
+
+function buildSidebar(pages) {
+  const list = document.getElementById('pageList');
+  list.innerHTML = '';
+  pages.forEach(file => {
+    const label = PAGE_LABELS[file] || (file.match(/^kitten-detail-(\d+)\.html$/) ? `Карточка котёнка №${file.match(/\d+/)[0]}` : file);
+    const btn = document.createElement('button');
+    btn.className = 'page-btn';
+    btn.dataset.file = file;
+    btn.innerHTML = `${label}<small>${file}</small>`;
+    btn.onclick = () => openPage(file, btn);
+    list.appendChild(btn);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OPEN PAGE
+═══════════════════════════════════════════════════════════ */
+async function openPage(file, btnEl) {
+  if (changedCount > 0) {
+    if (!confirm('Есть несохранённые изменения на текущей странице. Перейти без сохранения?')) return;
+  }
+  // Active button
+  document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  currentFile = file;
+  changedCount = 0;
+  document.getElementById('publishBar').style.display = 'none';
+
+  const label = PAGE_LABELS[file] || file;
+  document.getElementById('pageTitle').textContent = label;
+  document.getElementById('pageFilename').textContent = file;
+  document.getElementById('searchInput').value = '';
+  document.getElementById('editorPlaceholder').style.display = 'none';
+  document.getElementById('nodesList').style.display = 'none';
+  setStatus('🔄 Загрузка страницы...', '');
+
+  try {
+    const res = await ghFetch(`${API}/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(file)}?ref=${BRANCH}`);
+    if (!res.ok) throw new Error('Не удалось загрузить файл');
+    const data = await res.json();
+    currentSha = data.sha;
+    currentHtml = decodeBase64(data.content);
+    workingHtml = currentHtml;
+    parseAndRender();
+    setStatus(`✓ Загружено. Найдено текстовых блоков: ${editNodes.length}`, 'ok');
+  } catch(e) {
+    setStatus('❌ ' + e.message, 'err');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PARSE HTML → TEXT NODES
+   Finds all visible text nodes, including those split by <a>
+═══════════════════════════════════════════════════════════ */
+function parseAndRender() {
+  editNodes = [];
+
+  // Strategy: parse into DOM, walk nodes, find TEXT nodes with content
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(workingHtml, 'text/html');
+
+  // Skip these elements entirely
+  const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','TEMPLATE','HEAD','META','LINK']);
+  // Group context tags for display
+  const BLOCK_TAGS = new Set(['P','H1','H2','H3','H4','H5','H6','LI','TD','TH','LABEL',
+    'FIGCAPTION','BLOCKQUOTE','CITE','DT','DD','CAPTION','SUMMARY','LEGEND',
+    'BUTTON','OPTION','TITLE','DIV','SECTION','ARTICLE','ASIDE','SPAN','A']);
+
+  function getTagPath(el) {
+    const parts = [];
+    let cur = el;
+    while (cur && cur.tagName) {
+      parts.unshift(cur.tagName.toLowerCase() + (cur.id ? '#'+cur.id : cur.className ? '.'+cur.className.split(' ')[0] : ''));
+      cur = cur.parentElement;
+      if (parts.length > 4) break;
+    }
+    return parts.join(' > ');
+  }
+
+  // We want to collect "paragraph-level" blocks — element + its full visible text
+  function collectBlocks(root) {
+    const blocks = [];
+
+    function visit(el) {
+      if (!el || SKIP_TAGS.has(el.tagName)) return;
+      // Check if this is an interesting block-level element
+      const tag = el.tagName;
+      if (BLOCK_TAGS.has(tag) && el.childNodes.length > 0) {
+        // Collect visible text of this element
+        const visText = getVisibleText(el).trim();
+        if (visText.length > 1) {
+          blocks.push({ el, visText, tag, path: getTagPath(el) });
+          return; // Don't recurse into children — they'll be sub-parts
+        }
+      }
+      // Recurse
+      for (const child of el.children) visit(child);
+    }
+
+    visit(root);
+    return blocks;
+  }
+
+  function getVisibleText(el) {
+    let text = '';
+    for (const node of el.childNodes) {
+      if (node.nodeType === 3) { // TEXT_NODE
+        text += node.textContent;
+      } else if (node.nodeType === 1) {
+        const t = node.tagName;
+        if (!SKIP_TAGS.has(t)) text += getVisibleText(node);
+      }
+    }
+    return text;
+  }
+
+  const body = doc.body;
+  const blocks = collectBlocks(body);
+
+  // Deduplicate by visText (parent often repeats child text)
+  const seen = new Map();
+  const deduped = [];
+  for (const b of blocks) {
+    if (!seen.has(b.visText)) {
+      seen.set(b.visText, true);
+      deduped.push(b);
+    }
+  }
+
+  // Build edit nodes with original HTML snippet for replacement
+  editNodes = deduped.map((b, i) => ({
+    id: i,
+    visText: b.visText,
+    tag: b.tag,
+    path: b.path,
+    modified: false,
+  }));
+
+  renderNodes('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER NODES
+═══════════════════════════════════════════════════════════ */
+function renderNodes(filter) {
+  const list = document.getElementById('nodesList');
+  list.innerHTML = '';
+  list.style.display = 'flex';
+
+  const q = filter.trim().toLowerCase();
+  const visible = editNodes.filter(n => !q || n.visText.toLowerCase().includes(q));
+
+  if (visible.length === 0) {
+    list.innerHTML = `<div class="empty-state">Ничего не найдено по запросу «${escHtml(filter)}»</div>`;
+    return;
+  }
+
+  visible.forEach(node => {
+    const card = document.createElement('div');
+    card.className = 'node-card' + (node.modified ? ' highlight' : '');
+    card.dataset.nodeId = node.id;
+
+    const displayText = escHtml(node.visText.length > 300 ? node.visText.slice(0, 300) + '…' : node.visText);
+    const highlightedText = q ? displayText.replace(new RegExp(escRegex(escHtml(q)), 'gi'), m => `<mark>${m}</mark>`) : displayText;
+
+    card.innerHTML = `
+      <div class="node-header">
+        <span class="node-tag">${node.tag.toLowerCase()}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#999">${escHtml(node.path)}</span>
+        ${node.modified ? '<span class="changed-badge">изменено</span>' : ''}
+      </div>
+      <div class="node-body">
+        <div class="node-text-display">${highlightedText}</div>
+      </div>
+      <div class="node-actions">
+        <button class="btn-edit" onclick="openEditModal(${node.id})">✏️ Редактировать</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function filterNodes() {
+  renderNodes(document.getElementById('searchInput').value);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EDIT MODAL
+═══════════════════════════════════════════════════════════ */
+function openEditModal(nodeId) {
+  pendingNodeIndex = nodeId;
+  const node = editNodes[nodeId];
+  document.getElementById('modalOldText').textContent = node.visText;
+  document.getElementById('modalNewText').value = node.visText;
+  document.getElementById('diffPreview').classList.remove('visible');
+  document.getElementById('editModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('modalNewText').focus(), 80);
+}
+
+function closeModal() {
+  document.getElementById('editModal').style.display = 'none';
+  pendingNodeIndex = null;
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('editModal')) closeModal();
+}
+
+function updatePreview() {
+  const oldVal = document.getElementById('modalOldText').textContent;
+  const newVal = document.getElementById('modalNewText').value;
+  const preview = document.getElementById('diffPreview');
+  if (newVal === oldVal || !newVal.trim()) {
+    preview.classList.remove('visible');
+    return;
+  }
+  preview.innerHTML = `<span class="diff-del">${escHtml(oldVal.slice(0,120))}${oldVal.length>120?'…':''}</span> → <span class="diff-add">${escHtml(newVal.slice(0,120))}${newVal.length>120?'…':''}</span>`;
+  preview.classList.add('visible');
+}
+
+function applyEdit() {
+  if (pendingNodeIndex === null) return;
+  const node = editNodes[pendingNodeIndex];
+  const newText = document.getElementById('modalNewText').value.trim();
+  if (!newText || newText === node.visText) { closeModal(); return; }
+
+  // Replace in workingHtml — smart replacement that handles tags inside
+  const replaced = replaceVisibleText(workingHtml, node.visText, newText);
+  if (replaced === null) {
+    setStatus('⚠️ Не удалось найти текст в HTML. Попробуйте скопировать более точный кусок.', 'err');
+    closeModal();
+    return;
+  }
+
+  workingHtml = replaced;
+  node.visText = newText;
+  node.modified = true;
+  changedCount++;
+
+  closeModal();
+  renderNodes(document.getElementById('searchInput').value);
+  document.getElementById('publishBar').style.display = 'flex';
+  setStatus(`✓ Применено (${changedCount} изм.). Нажмите «Опубликовать» чтобы сохранить на сайт.`, 'ok');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SMART REPLACE — finds visible text even with tags inside
+   Strategy:
+   1. Try exact string match first (simple text nodes)
+   2. Try match ignoring inner HTML tags (smart mode)
+   3. Try normalized whitespace match
+═══════════════════════════════════════════════════════════ */
+function replaceVisibleText(html, oldText, newText) {
+  // 1. Direct match (most reliable, fastest)
+  const directIdx = html.indexOf(oldText);
+  if (directIdx !== -1) {
+    return html.slice(0, directIdx) + newText + html.slice(directIdx + oldText.length);
+  }
+
+  // 2. Normalize apostrophes and quotes, try again
+  const oldNorm = normalizeQuotes(oldText);
+  if (oldNorm !== oldText) {
+    const normIdx = normalizeQuotes(html).indexOf(oldNorm);
+    if (normIdx !== -1) {
+      return html.slice(0, normIdx) + newText + html.slice(normIdx + oldText.length);
+    }
+  }
+
+  // 3. Smart mode: the visible text may be split by <a>, <strong>, etc.
+  // Build a regex that matches the text with optional HTML tags between words
+  const escaped = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Allow tags between any two characters
+  const tagPattern = '(?:<[^>]*>)*';
+  const regexStr = escaped.split('').join(tagPattern);
+  try {
+    const re = new RegExp(regexStr);
+    const match = html.match(re);
+    if (match) {
+      return html.replace(re, newText);
+    }
+  } catch(_) {}
+
+  // 4. Word-boundary fuzzy: split into significant words, find block containing all of them
+  const words = oldText.split(/\s+/).filter(w => w.length > 3);
+  if (words.length >= 2) {
+    // Find a region that contains all words
+    const firstWord = words[0];
+    let searchFrom = 0;
+    while (searchFrom < html.length) {
+      const idx = html.indexOf(firstWord, searchFrom);
+      if (idx === -1) break;
+      // Check if subsequent words appear nearby (within 500 chars)
+      const region = html.slice(idx, idx + oldText.length + 200);
+      const allPresent = words.every(w => region.includes(w));
+      if (allPresent) {
+        // Replace the region: find where the last word ends
+        const lastWord = words[words.length - 1];
+        const lastIdx = region.lastIndexOf(lastWord);
+        const endIdx = idx + lastIdx + lastWord.length;
+        return html.slice(0, idx) + newText + html.slice(endIdx);
+      }
+      searchFrom = idx + 1;
+    }
+  }
+
+  return null; // could not find
+}
+
+function normalizeQuotes(s) {
+  return s.replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+           .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+           .replace(/\u2013|\u2014/g, '-')
+           .replace(/\s+/g, ' ');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PUBLISH
+═══════════════════════════════════════════════════════════ */
+async function publishChanges() {
+  if (!currentFile || !currentSha) return;
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Публикация...';
+  setStatus('🔄 Публикация на GitHub...', '');
+
+  try {
+    const encoded = encodeBase64(workingHtml);
+    const res = await ghFetch(`${API}/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(currentFile)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: `edit(text): update text on ${currentFile}`,
+        content: encoded,
+        sha: currentSha,
+        branch: BRANCH,
+      })
+    });
+    if (!res.ok) {
+      const j = await res.json();
+      throw new Error(j.message || 'GitHub API error');
+    }
+    const data = await res.json();
+    currentSha = data.content.sha;
+    currentHtml = workingHtml;
+    changedCount = 0;
+    document.getElementById('publishBar').style.display = 'none';
+    btn.textContent = '🚀 Опубликовать';
+    btn.disabled = false;
+    setStatus(`✅ Опубликовано! Сайт обновится через ~1 мин. → https://gardenstatecoon.com/${currentFile}`, 'ok');
+  } catch(e) {
+    btn.textContent = '🚀 Опубликовать';
+    btn.disabled = false;
+    setStatus('❌ Ошибка публикации: ' + e.message, 'err');
+  }
+}
+
+function discardChanges() {
+  if (!confirm('Отменить все изменения на этой странице?')) return;
+  workingHtml = currentHtml;
+  changedCount = 0;
+  editNodes.forEach(n => n.modified = false);
+  document.getElementById('publishBar').style.display = 'none';
+  renderNodes(document.getElementById('searchInput').value);
+  setStatus('✓ Изменения отменены.', 'ok');
+}
+
+async function reloadPage() {
+  if (currentFile) {
+    const activeBtn = document.querySelector('.page-btn.active');
+    if (activeBtn) openPage(currentFile, activeBtn);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function ghFetch(url, opts = {}) {
+  opts.headers = Object.assign({
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  }, opts.headers || {});
+  return fetch(url, opts);
+}
+
+function decodeBase64(b64) {
+  const clean = b64.replace(/\s/g, '');
+  const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+function encodeBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let b = '';
+  for (const byte of bytes) b += String.fromCharCode(byte);
+  return btoa(b);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function setStatus(msg, type) {
+  const bar = document.getElementById('statusBar');
+  bar.className = 'status-bar';
+  if (type === 'ok') bar.innerHTML = `<span class="status-ok">${msg}</span>`;
+  else if (type === 'err') bar.innerHTML = `<span class="status-err">${msg}</span>`;
+  else bar.innerHTML = `<span class="spinner"></span> ${escHtml(msg)}`;
+}
+
+/* Boot */
+loadToken();
+</script>
+</body>
+</html>

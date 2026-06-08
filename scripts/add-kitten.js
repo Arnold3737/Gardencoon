@@ -558,14 +558,13 @@ function updateKittensPage(mainBase) {
           </div>
         </a>`;
 
-  // 1) Вставка карточки в конец грида.
-  //    Маркер — закрытие .kittens-grid перед PAGINATION.
-  //    Регулярка терпима к CRLF/LF и любым отступам (важно на Windows).
-  const gridMarkerRe = /([ \t]*<\/div>\s*<\/section>\s*(?:<!--\s*PAGINATION\s*-->|<nav[^>]*class="pagination"))/;
-  if (!gridMarkerRe.test(html)) {
-    throw new Error('Не найден маркер конца .kittens-grid — структура kittens.html изменилась.');
+  // 1) Вставка карточки В НАЧАЛО грида (новый котёнок показывается первым).
+  //    Маркер — открытие .kittens-grid. Регулярка терпима к CRLF/LF и отступам.
+  const gridOpenRe = /(<div[^>]*class="[^"]*kittens-grid[^"]*"[^>]*>)/;
+  if (!gridOpenRe.test(html)) {
+    throw new Error('Не найден маркер начала .kittens-grid — структура kittens.html изменилась.');
   }
-  html = html.replace(gridMarkerRe, `${newCard}\n$1`);
+  html = html.replace(gridOpenRe, `$1\n${newCard}`);
 
   // 2) Обновление JSON-LD через парсинг
   const jsonLdRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/;

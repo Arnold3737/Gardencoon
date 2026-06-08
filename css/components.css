@@ -432,18 +432,30 @@
     border: none;
     padding: 0;
     background: transparent;
-    max-width: 90vw;
-    max-height: 90dvh;
+    max-width: 92vw;
+    max-height: 92dvh;
+    margin: auto;
+    overflow: visible;
   }
 
   .lightbox::backdrop {
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.88);
+  }
+
+  .lightbox picture {
+    display: block;
+    line-height: 0;
   }
 
   .lightbox img {
-    max-width: 90vw;
-    max-height: 85dvh;
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 92vw;
+    max-height: 88dvh;
     object-fit: contain;
+    border-radius: var(--radius-md);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
   }
 
   /* === DETAILS / SUMMARY (FAQ) === */

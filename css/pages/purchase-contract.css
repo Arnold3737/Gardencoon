@@ -1,0 +1,30 @@
+/* === PURCHASE CONTRACT PAGE === */
+
+@layer pages {
+  /* === CONTRACT CONTENT === */
+  .contract-content {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  .contract-content h2 {
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-xl);
+  }
+
+  .contract-content p {
+    margin-bottom: var(--space-4);
+  }
+
+  .contract-content ol,
+  .contract-content ul {
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-8);
+  }
+
+  .contract-content li {
+    margin-bottom: var(--space-2);
+  }
+}

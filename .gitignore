@@ -1,0 +1,18 @@
+# Node
+node_modules/
+npm-debug.log*
+.npm/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local env
+.env
+.env.local
+
+# Auto-generated files from add-kitten.js test runs
+/tmp/
+__pycache__/

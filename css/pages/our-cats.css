@@ -1,0 +1,48 @@
+/* === OUR CATS PAGE === */
+
+@layer pages {
+  /* === CATS GRID === */
+  .cats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8);
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  /* === CAT CARD === */
+  .cat-card__titles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .cats-grid {
+      grid-template-columns: 1fr;
+      max-width: none;
+    }
+  }
+
+  /* === KITTENS CTA === */
+  .cats-cta {
+    text-align: center;
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .cats-cta p {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-8);
+  }
+
+  .cats-cta__actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "garden-state-coon",
+  "version": "1.0.0",
+  "description": "Garden State Coon — Maine Coon cattery website (Edison, NJ)",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "add-kitten": "node scripts/add-kitten.js",
+    "convert-images": "node scripts/convert-images.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

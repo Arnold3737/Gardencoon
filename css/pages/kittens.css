@@ -1,0 +1,38 @@
+/* === KITTENS CATALOG PAGE === */
+
+@layer pages {
+  /* === KITTENS GRID === */
+  .kittens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-8);
+    container-type: inline-size;
+    container-name: kittens-grid;
+  }
+
+  /* === KITTEN STATUS BADGE === */
+  .kitten-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  /* === FILTER BAR === */
+  .kittens-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .kittens-filter__btn--active {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    border-color: var(--color-primary);
+  }
+}

@@ -1,0 +1,28 @@
+/* === CONTACT PAGE === */
+
+@layer pages {
+  /* === CONTACT LAYOUT === */
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+  }
+
+  @media (max-width: 768px) {
+    .contact-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* === CONTACT INFO === */
+  .contact-info {
+    padding: var(--space-8);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+  }
+
+  .contact-info__item {
+    margin-bottom: var(--space-6);
+  }
+}

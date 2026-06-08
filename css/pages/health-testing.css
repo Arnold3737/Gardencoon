@@ -1,0 +1,37 @@
+/* === HEALTH TESTING PAGE === */
+
+@layer pages {
+  /* === TESTING GRID === */
+  .testing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-8);
+  }
+
+  /* === TEST CARD === */
+  .test-card {
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .test-card__icon {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+  }
+
+  /* === RESULTS TABLE === */
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--space-8);
+    font-size: var(--text-sm);
+  }
+
+  .results-table th,
+  .results-table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+}

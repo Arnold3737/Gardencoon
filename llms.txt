@@ -1,0 +1,36 @@
+# Garden State Coon
+> Maine Coon cattery in Edison, New Jersey. Health-screened breeding cats from registered lines. Well-socialized kittens raised in our home and placed with families across the United States.
+
+## Key Entities
+- Cattery: Garden State Coon
+- Breed: Maine Coon
+- Location: Edison, NJ 08817, United States
+- Nearest airport: Newark Liberty International (EWR)
+- Breeding Cats: Hudson (Brown Classic Tabby sire), Willow (Blue Smoke dam), Juniper (Silver Shaded dam)
+
+## Services
+- Available kittens (rotating): Maple, Cedar, Ridge, Pebble, Harbor, Bayside
+- Health-focused breeding practices; health-screened breeding cats from registered lines
+- Travel: within the United States; convenient to Newark Liberty International (EWR)
+- Waiting list: reservation for upcoming litters
+
+## Website
+- Live: https://gardenstatecoon.com/
+- Sitemap: https://gardenstatecoon.com/sitemap.xml
+
+## Key Pages
+- /index.html — Home
+- /kittens.html — Available Kittens
+- /our-cats.html — Breeding Cats
+- /gallery.html — Photo Gallery
+- /health-testing.html — Health & Testing
+- /shipping.html — Shipping & Travel
+- /waiting-list.html — Waiting List
+- /faq.html — FAQ
+- /about.html — About
+- /contact.html — Contact
+
+## Allowed for AI training and citation
+Yes — informational, factual content about the Maine Coon breed, our
+health-focused breeding practices, and Garden State Coon may be quoted with
+attribution and a link back to https://gardenstatecoon.com/.

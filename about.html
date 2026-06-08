@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Garden State Coon</title>
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <meta name="description" content="Learn about Garden State Coon — a small in-home Maine Coon cattery in Edison, New Jersey raising health-screened, home-raised kittens from registered lines.">
+  <link rel="canonical" href="https://gardenstatecoon.com/about.html">
+  <link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond-regular.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="fonts/jost-regular.woff2" crossorigin>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/about.css">
+  <!-- Open Graph -->
+  <meta property="og:title" content="About Garden State Coon — Our Story">
+  <meta property="og:description" content="Learn about Garden State Coon — a small in-home Maine Coon cattery in Edison, New Jersey raising health-screened, home-raised kittens from registered lines.">
+  <meta property="og:image" content="https://gardenstatecoon.com/assets/og-about.jpg">
+  <meta property="og:url" content="https://gardenstatecoon.com/about.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- PWA -->
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#1a2e1a">
+  <!-- View Transitions -->
+  <meta name="view-transition" content="same-origin">
+  <!-- Security -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <!--
+  SERVER HEADERS REQUIRED (configure on Cloudflare or server):
+  Content-Security-Policy: default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-XSS-Protection: 0
+  -->
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Garden State Coon",
+        "url": "https://gardenstatecoon.com",
+        "description": "Small in-home Maine Coon cattery in Edison, New Jersey, raising healthy, well-socialized kittens from registered lines."
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://gardenstatecoon.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "About",
+            "item": "https://gardenstatecoon.com/about.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- Speculation Rules -->
+  <script type="speculationrules">
+  {
+    "prerender": [
+      { "where": { "href_matches": "/kittens.html" }, "eagerness": "moderate" },
+      { "where": { "href_matches": "/contact.html" }, "eagerness": "moderate" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- NAV -->
+  <header role="banner" class="site-header">
+    <nav aria-label="Main navigation" data-nav class="nav">
+      <a href="index.html" class="nav__logo">Garden State Coon</a>
+      <button type="button" data-hamburger
+              aria-expanded="false"
+              aria-controls="nav-menu"
+              aria-label="Toggle navigation menu"
+              class="nav__toggle">
+        <span aria-hidden="true">&#9776;</span>
+      </button>
+      <ul id="nav-menu" role="list" data-nav-menu class="nav__menu" hidden>
+          <li><a href="index.html" data-nav-link>Home</a></li>
+          <li><a href="about.html" data-nav-link aria-current="page">About</a></li>
+          <li><a href="gallery.html" data-nav-link>Gallery</a></li>
+          <li><a href="kittens.html" data-nav-link>Available Kittens</a></li>
+          <li><a href="our-cats.html" data-nav-link>Our Cats</a></li>
+          <li><a href="contact.html" data-nav-link>Contact</a></li>
+          <li><a href="faq.html" data-nav-link>FAQ</a></li>
+          <li><a href="health-testing.html" data-nav-link>Health Testing</a></li>
+          <li><a href="shipping.html" data-nav-link>Shipping</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content">
+        <!-- BREADCRUMB -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="index.html">Home</a>
+      <span class="breadcrumb__separator" aria-hidden="true">/</span>
+      <span aria-current="page">About</span>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="about-hero-heading">
+        <picture>
+          <source type="image/avif"
+                  srcset="assets/hero-about-640.avif 640w,
+                          assets/hero-about-1024.avif 1024w,
+                          assets/hero-about-1920.avif 1920w"
+                  sizes="100vw">
+          <source type="image/webp"
+                  srcset="assets/hero-about-640.webp 640w,
+                          assets/hero-about-1024.webp 1024w,
+                          assets/hero-about-1920.webp 1920w"
+                  sizes="100vw">
+          <img src="assets/hero-about-1920.jpg" alt="Garden State Coon cattery — Maine Coon cats in Edison, New Jersey" width="1920" height="1072" fetchpriority="high" loading="eager" decoding="async">
+        </picture>
+      <div class="hero__content">
+        <h1 id="about-hero-heading" class="hero__title">Our Story</h1>
+        <p class="hero__subtitle">A passion for Maine Coons, rooted in health and heart</p>
+      </div>
+    </section>
+
+    <!-- STORY -->
+    <section class="section" aria-labelledby="story-heading">
+      <div class="about-story">
+        <div>
+          <h2 id="story-heading" class="section__heading">How It All Began</h2>
+          <p>Garden State Coon is a small, in-home Maine Coon cattery in Edison, New Jersey. We are a dedicated breeding program devoted to raising healthy, well-socialized gentle giants from registered lines, all raised indoors as members of our family.</p>
+        </div>
+        <div>
+        <picture>
+          <source type="image/avif"
+                  srcset="assets/about-story-640.avif 640w,
+                          assets/about-story-1024.avif 1024w,
+                          assets/about-story-1920.avif 1920w"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw">
+          <source type="image/webp"
+                  srcset="assets/about-story-640.webp 640w,
+                          assets/about-story-1024.webp 1024w,
+                          assets/about-story-1920.webp 1920w"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw">
+          <img src="assets/about-story-1920.jpg" alt="Garden State Coon family with Maine Coon cats" width="1920" height="1434" loading="lazy">
+        </picture>
+        </div>
+      </div>
+    </section>
+
+    <!-- BREEDING PROGRAM -->
+    <section class="section about-breeding section--below-fold" aria-labelledby="breeding-heading">
+      <h2 id="breeding-heading" class="section__heading">Our Breeding Program</h2>
+      <p>We select our breeding cats for health, temperament, and true-to-type Maine Coon conformation from registered lines. Every pairing is planned with purpose.</p>
+      <div class="about-breeding__grid">
+        <div class="card">
+          <div class="card__body">
+            <h3 class="card__title">Genetic Screening</h3>
+            <p class="card__text">All breeding cats are health-screened before any planned litter.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__body">
+            <h3 class="card__title">Registered Bloodlines</h3>
+            <p class="card__text">Our cats come from registered Maine Coon lines.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__body">
+            <h3 class="card__title">Careful Pairings</h3>
+            <p class="card__text">Each breeding is planned to optimize health, type, and temperament for the next generation.</p>
+          </div>
+        </div>
+      </div>
+      <a href="our-cats.html" class="btn btn-secondary">Our Cats</a>
+      <a href="health-testing.html" class="btn btn-secondary">Health Testing</a>
+    </section>
+
+    <!-- VALUES -->
+    <section class="section about-values section--below-fold" aria-labelledby="values-heading">
+      <h2 id="values-heading" class="section__heading">Our Values</h2>
+      <div class="about-values">
+        <div class="card">
+          <div class="card__body">
+            <h3 class="card__title">Health First</h3>
+            <p class="card__text">Every kitten leaves examined by our veterinarian, with age-appropriate vaccinations, dewormed on schedule, litter-trained, and a record of veterinary care for your own vet.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__body">
+            <h3 class="card__title">Home-Raised</h3>
+            <p class="card__text">All kittens are born and raised in our home. They are socialized with children, dogs, and daily household activity for confident, loving temperaments.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__body">
+            <h3 class="card__title">Lifetime Support</h3>
+            <p class="card__text">We stay connected with every family. From nutrition questions to vet referrals — Garden State Coon is your lifelong resource.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer role="contentinfo" class="site-footer">
+    <div class="footer__inner">
+      <nav aria-label="Footer navigation">
+        <ul role="list" class="footer__nav">
+          <li><a href="index.html" class="footer__link">Home</a></li>
+          <li><a href="about.html" class="footer__link" aria-current="page">About</a></li>
+          <li><a href="gallery.html" class="footer__link">Gallery</a></li>
+          <li><a href="kittens.html" class="footer__link">Available Kittens</a></li>
+          <li><a href="our-cats.html" class="footer__link">Our Cats</a></li>
+          <li><a href="contact.html" class="footer__link">Contact</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+          <li><a href="health-testing.html" class="footer__link">Health Testing</a></li>
+          <li><a href="shipping.html" class="footer__link">Shipping</a></li>
+          <li><a href="purchase-contract.html" class="footer__link">Purchase Contract</a></li>
+          <li><a href="waiting-list.html" class="footer__link">Waiting List</a></li>
+          <li><a href="privacy-policy.html" class="footer__link">Privacy Policy</a></li>
+          <li><a href="terms-of-sale.html" class="footer__link">Terms of Sale</a></li>
+          <li><a href="cookie-policy.html" class="footer__link">Cookie Policy</a></li>
+        </ul>
+      </nav>
+      <p class="footer__copy">© 2026 Garden State Coon. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/nav.js" defer></script>
+  <script defer>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>

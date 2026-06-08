@@ -1,0 +1,33 @@
+/* === COOKIE POLICY PAGE === */
+
+@layer pages {
+  .cookie-content {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  .cookie-content h2 {
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-xl);
+  }
+
+  .cookie-content p {
+    margin-bottom: var(--space-4);
+  }
+
+  .cookie-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-8) 0;
+    font-size: var(--text-sm);
+  }
+
+  .cookie-content th,
+  .cookie-content td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+}

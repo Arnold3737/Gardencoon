@@ -1,0 +1,16 @@
+{
+  "name": "Nova",
+  "gender": "Female",
+  "color": "Silver Shaded",
+  "status": "available",
+  "description": "Nova is a gentle, affectionate silver shaded female with a soft undercoat. She is curious and easygoing, and loves to perch on a sunny windowsill. Raised underfoot in our home and well-socialized.",
+  "healthTesting": "Nova comes from health-screened breeding cats of registered lines. Before going home she is examined by our veterinarian, receives age-appropriate vaccinations, is dewormed on schedule, and is litter-box trained. We provide a record of veterinary care for your own vet.",
+  "sire": {
+    "name": "Hudson",
+    "title": "Brown Classic Tabby · Registered lines · Health-screened"
+  },
+  "dam": {
+    "name": "Willow",
+    "title": "Blue Smoke · Registered lines · Health-screened"
+  }
+}

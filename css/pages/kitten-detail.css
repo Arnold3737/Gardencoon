@@ -1,0 +1,136 @@
+/* === KITTEN DETAIL PAGE === */
+
+@layer pages {
+  /* === DETAIL LAYOUT === */
+  .kitten-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .kitten-detail {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* === KITTEN GALLERY === */
+  .kitten-detail__gallery {
+    display: grid;
+    gap: var(--space-4);
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+  }
+
+  .kitten-detail__gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
+    display: block;
+    border-radius: var(--radius-lg);
+  }
+
+  /* === KITTEN INFO === */
+  .kitten-detail__info {
+    padding: var(--space-6);
+  }
+
+  .kitten-detail__name {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .kitten-detail__meta {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* === MULTI-IMAGE GALLERY (progressive enhancement) === */
+  /* Only visible when JS adds --multi class (2+ images or video present) */
+  .kitten-detail__gallery--multi {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: var(--space-3);
+  }
+
+  .kitten-detail__thumbs {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding: var(--space-1) 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kitten-detail__thumb {
+    flex: 0 0 auto;
+    width: 80px;
+    height: 60px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--color-surface);
+    transition: border-color var(--transition-fast);
+  }
+
+  .kitten-detail__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+  }
+
+  .kitten-detail__thumb--active {
+    border-color: var(--color-secondary);
+  }
+
+  .kitten-detail__thumb:hover {
+    border-color: var(--color-accent);
+  }
+
+  /* Video thumb overlay */
+  .kitten-detail__thumb--video {
+    position: relative;
+  }
+
+  .kitten-detail__play-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+  }
+
+  /* Inline video player */
+  .kitten-detail__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Lightbox cursor on clickable hero image */
+  .kitten-detail__gallery picture[style*="cursor"] img {
+    cursor: pointer;
+  }
+
+  /* === PARENTS SECTION === */
+  .kitten-detail__parents {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+  }
+}

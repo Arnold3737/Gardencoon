@@ -1,0 +1,29 @@
+{
+  "name": "Garden State Coon",
+  "short_name": "GS Coon",
+  "description": "Maine Coon cattery in Edison, New Jersey. Health-screened breeding cats from registered lines. Kittens available.",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1a2e1a",
+  "background_color": "#f7f9f5",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

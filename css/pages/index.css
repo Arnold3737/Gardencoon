@@ -1,0 +1,65 @@
+/* === HOME PAGE === */
+
+@layer pages {
+  /* === HERO === */
+  .home-hero {
+    min-height: 80dvh;
+  }
+
+  /* === STATS === */
+  .home-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-8);
+    text-align: center;
+    padding: var(--space-16) var(--space-6);
+  }
+
+  .home-stats__item {
+    padding: var(--space-6);
+  }
+
+  .home-stats__number {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    color: var(--color-primary);
+  }
+
+  .home-stats__label {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-2);
+  }
+
+  /* === ABOUT PREVIEW === */
+  .home-about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .home-about picture {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    aspect-ratio: 4 / 3;
+  }
+
+  .home-about picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 768px) {
+    .home-about {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* === KITTENS PREVIEW === */
+  .home-kittens {
+    padding: var(--space-16) 0;
+  }
+}

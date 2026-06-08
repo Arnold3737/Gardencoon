@@ -1,0 +1,26 @@
+/* === FAQ PAGE === */
+
+@layer pages {
+  /* === FAQ LIST === */
+  .faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .faq-list details {
+    margin-bottom: var(--space-4);
+  }
+
+  .faq-list summary h2 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+
+  /* === FAQ CATEGORIES === */
+  .faq-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+  }
+}

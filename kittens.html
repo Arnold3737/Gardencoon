@@ -48,7 +48,7 @@
         "name": "Available Maine Coon Kittens",
         "description": "Browse available Maine Coon kittens at Garden State Coon cattery in Edison, New Jersey.",
         "url": "https://gardenstatecoon.com/kittens.html",
-        "numberOfItems": 7,
+        "numberOfItems": 8,
         "itemListElement": [
           {
             "@type": "ListItem",
@@ -91,6 +91,12 @@
             "position": 7,
             "name": "esthg — sdgnb Female",
             "url": "https://gardenstatecoon.com/kitten-detail-7.html"
+          },
+          {
+            "@type": "ListItem",
+            "position": 8,
+            "name": "Samvel — NTAbby Male",
+            "url": "https://gardenstatecoon.com/kitten-detail-8.html"
           }
         ]
       },
@@ -196,6 +202,32 @@
 
       <!-- KITTENS GRID -->
       <div class="kittens-grid">
+
+        <a href="kitten-detail-8.html" class="card" data-status="reserved">
+          <div class="card__image-wrap">
+        <picture>
+          <source type="image/avif"
+                  srcset="assets/kitten-8-640.avif 640w,
+                          assets/kitten-8-1024.avif 1024w,
+                          assets/kitten-8-1920.avif 1920w"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw">
+          <source type="image/webp"
+                  srcset="assets/kitten-8-640.webp 640w,
+                          assets/kitten-8-1024.webp 1024w,
+                          assets/kitten-8-1920.webp 1920w"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw">
+          <img src="assets/kitten-8-1920.jpg"
+               alt="Samvel — NTAbby Maine Coon male kitten"
+               width="1920" height="1080"
+               loading="lazy">
+        </picture>
+          </div>
+          <div class="card__body">
+            <span class="kitten-badge">Reserved</span>
+            <h3 class="card__title">Samvel</h3>
+            <p class="card__text">Male · NTAbby · Price available upon request</p>
+          </div>
+        </a>
         <a href="kitten-detail-7.html" class="card" data-status="available">
           <div class="card__image-wrap">
         <picture>

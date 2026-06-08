@@ -432,10 +432,18 @@
     border: none;
     padding: 0;
     background: transparent;
+    width: max-content;
+    height: max-content;
     max-width: 92vw;
     max-height: 92dvh;
     margin: auto;
     overflow: visible;
+  }
+
+  /* Modal dialog gets browser focus on open — kill the green focus outline */
+  .lightbox:focus,
+  .lightbox:focus-visible {
+    outline: none;
   }
 
   .lightbox::backdrop {

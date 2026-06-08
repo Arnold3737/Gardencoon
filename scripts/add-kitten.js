@@ -558,12 +558,14 @@ function updateKittensPage(mainBase) {
           </div>
         </a>`;
 
-  // 1) Вставка карточки в грид
-  const gridMarker = '      </div>\n    </section>\n\n    <!-- PAGINATION -->';
-  if (!html.includes(gridMarker)) {
+  // 1) Вставка карточки в конец грида.
+  //    Маркер — закрытие .kittens-grid перед PAGINATION.
+  //    Регулярка терпима к CRLF/LF и любым отступам (важно на Windows).
+  const gridMarkerRe = /([ \t]*<\/div>\s*<\/section>\s*(?:<!--\s*PAGINATION\s*-->|<nav[^>]*class="pagination"))/;
+  if (!gridMarkerRe.test(html)) {
     throw new Error('Не найден маркер конца .kittens-grid — структура kittens.html изменилась.');
   }
-  html = html.replace(gridMarker, `${newCard}\n      </div>\n    </section>\n\n    <!-- PAGINATION -->`);
+  html = html.replace(gridMarkerRe, `${newCard}\n$1`);
 
   // 2) Обновление JSON-LD через парсинг
   const jsonLdRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/;
@@ -607,21 +609,20 @@ function updateSitemap() {
 // ── Git commit + push ───────────────────────────────────────────────────────
 function gitPublish() {
   const run = (cmd) => execSync(cmd, { cwd: REPO_ROOT, stdio: 'inherit' });
-  console.log('\n📤 Git: синхронизация и публикация...');
-  try {
-    run('git pull --rebase');
-  } catch (_) {
-    console.warn('⚠️  git pull не удался, продолжаю.');
-  }
+  const runQuiet = (cmd) => { try { execSync(cmd, { cwd: REPO_ROOT, stdio: 'pipe' }); return true; } catch (_) { return false; } };
+  console.log('\n📤 Git: коммит и публикация...');
+  // Сначала фиксируем локальные изменения, чтобы pull --rebase не ругался.
   run('git add -A');
   run(`git commit -m "feat(kittens): add ${cfg.name} (${detailPage})"`);
   if (NO_PUSH) {
     console.log('ℹ️  --no-push: пуш пропущен.');
     return;
   }
+  // Подтягиваем удалённые изменения (если есть) и пушим.
+  runQuiet('git pull --rebase');
   run('git push');
   console.log(`\n🚀 Опубликовано! Сайт обновится за ~1 минуту.`);
-  console.log(`   → https://gardenstatecoon.com/${detailPage}`);
+  console.log(`   → https://arnold3737.github.io/Gardencoon/kittens.html`);
 }
 
 // ── Главная функция ─────────────────────────────────────────────────────────
